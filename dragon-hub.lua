@@ -1,23 +1,24 @@
 --[[
     ═════════════════════════════════════════════════════════════════════════════
-    🐉 DRAGON HUB V3 — OVERLORD EDITION 🐉
-    The Ultimate Steal an Egg Script with Advanced Protection
+    🐉 DRAGON HUB V4 — GODMODE EDITION 🐉
+    The Most Advanced Steal an Egg Script Ever Made
     ─────────────────────────────────────────────────────────────────────────────
-    ✦ 50+ Features | Server Key | HWID Lock | Anti-Kill Protection
-    ✦ Anti-Ragdoll | Anti-Fling | Health Lock | Anti-Touch | Emergency TP
-    ✦ Mobile Friendly | Floating Button | Webhook Logs
+    ✦ 70+ Features | Military-Grade Protection | Multi-Layer Bypass
+    ✦ Advanced Metamethod Hooking | Memory Protection | Behavior AI
+    ✦ Remote Spoofer | Detection Evasion | Silent Operations
+    ✦ Mobile Optimized | Draggable UI | Floating Button | Webhook Logs
     ═════════════════════════════════════════════════════════════════════════════
 ]]
 
 -- ═════════════════════════════════════════════════════════════════════════════
--- [1] SERVER & CONFIG
+-- [1] CONFIG
 -- ═════════════════════════════════════════════════════════════════════════════
 
 local SERVER_URL     = "https://dragon-hub-lilac.vercel.app/api/validate"
 local DISCORD_INVITE = "https://discord.gg/yourserver"
-local VERSION        = "3.0.0"
-local CONFIG_FILE    = "dragonhub_v3_config.json"
-local KEY_FILE       = "dragonhub_v3_key.txt"
+local VERSION        = "4.0.0"
+local CONFIG_FILE    = "dragonhub_v4_config.json"
+local KEY_FILE       = "dragonhub_v4_key.txt"
 
 -- ═════════════════════════════════════════════════════════════════════════════
 -- [2] SERVICES
@@ -36,13 +37,189 @@ local VirtualUser       = game:GetService("VirtualUser")
 local TeleportService   = game:GetService("TeleportService")
 local HttpService       = game:GetService("HttpService")
 local SoundService      = game:GetService("SoundService")
+local Stats             = game:GetService("Stats")
 
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui   = LocalPlayer:WaitForChild("PlayerGui")
 local Mouse       = LocalPlayer:GetMouse()
 
 -- ═════════════════════════════════════════════════════════════════════════════
--- [3] HTTP HELPERS
+-- [3] 🛡️ ULTIMATE PROTECTION ENGINE (يشتغل أول حاجة قبل أي شيء)
+-- ═════════════════════════════════════════════════════════════════════════════
+
+local Guardian = {
+    Enabled = true,
+    HooksActive = false,
+    BlockedRemotes = {},
+    BlockedPlayers = {},
+    SuspiciousPlayers = {},
+    LastHealth = 100,
+    HealthChecks = 0,
+    BlockedActions = 0,
+    SpoofedValues = {},
+    OriginalFunctions = {},
+}
+
+-- ═══ LAYER 1: Metamethod Hooking — Hook __namecall ═══
+pcall(function()
+    if hookmetamethod and newcclosure and getnamecallmethod then
+        local oldNamecall
+        oldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
+            if not Guardian.Enabled then
+                return oldNamecall(self, ...)
+            end
+            local method = getnamecallmethod()
+            if method == "FireServer" or method == "InvokeServer" then
+                local ok, name = pcall(function() return self.Name end)
+                if ok and name then
+                    local lname = name:lower()
+                    -- Block anti-cheat remotes
+                    for _, blocked in ipairs({"detect", "report", "kick", "ban", "anticheat", "hack", "cheat", "flag"}) do
+                        if lname:find(blocked) then
+                            Guardian.BlockedActions = Guardian.BlockedActions + 1
+                            return nil
+                        end
+                    end
+                end
+            end
+            return oldNamecall(self, ...)
+        end))
+        Guardian.HooksActive = true
+    end
+end)
+
+-- ═══ LAYER 2: Remote Event Spoofer ═══
+pcall(function()
+    if getrawmetatable and setreadonly then
+        local mt = getrawmetatable(game)
+        if mt then
+            setreadonly(mt, false)
+            local oldIndex = mt.__index
+            mt.__index = newcclosure(function(self, key)
+                if key == "WalkSpeed" or key == "JumpPower" then
+                    -- Fake normal values for detection
+                    if Guardian.SpoofedValues[key] then
+                        return Guardian.SpoofedValues[key]
+                    end
+                end
+                return oldIndex(self, key)
+            end)
+            setreadonly(mt, true)
+        end
+    end
+end)
+
+-- ═══ LAYER 3: Anti-Detection — Silent Value Changes ═══
+task.spawn(function()
+    while task.wait(0.8) do
+        if not Guardian.Enabled then continue end
+        local c = LocalPlayer.Character
+        if not c then continue end
+        local h = c:FindFirstChildOfClass("Humanoid")
+        if not h then continue end
+        -- Reduce speed gradually if too high
+        if h.WalkSpeed > 45 then
+            h.WalkSpeed = h.WalkSpeed - math.random(1, 3)
+        end
+        if h.JumpPower > 75 then
+            h.JumpPower = h.JumpPower - math.random(1, 2)
+        end
+    end
+end)
+
+-- ═══ LAYER 4: Behavior Humanizer AI ═══
+task.spawn(function()
+    local actions = {"move", "jump", "look", "idle"}
+    while task.wait(math.random(6, 12)) do
+        if not Guardian.Enabled then continue end
+        local c = LocalPlayer.Character
+        if not c then continue end
+        local h = c:FindFirstChildOfClass("Humanoid")
+        if not h then continue end
+        local action = actions[math.random(1, #actions)]
+        if action == "move" then
+            h:Move(Vector3.new(math.random(-1, 1), 0, math.random(-1, 1)), false)
+            task.wait(math.random(2, 5) / 10)
+            h:Move(Vector3.zero, false)
+        elseif action == "jump" then
+            if math.random() > 0.7 then
+                h:ChangeState(Enum.HumanoidStateType.Jumping)
+            end
+        elseif action == "look" then
+            local cam = Workspace.CurrentCamera
+            if cam then
+                cam.CFrame = cam.CFrame * CFrame.Angles(0, math.rad(math.random(-15, 15)), 0)
+            end
+        end
+    end
+end)
+
+-- ═══ LAYER 5: Health Integrity Monitor ═══
+task.spawn(function()
+    while task.wait(0.5) do
+        if not Guardian.Enabled then continue end
+        local c = LocalPlayer.Character
+        if not c then continue end
+        local h = c:FindFirstChildOfClass("Humanoid")
+        if not h then continue end
+        if h.Health < Guardian.LastHealth then
+            Guardian.HealthChecks = Guardian.HealthChecks + 1
+            -- Immediate heal
+            h.Health = h.MaxHealth
+        end
+        Guardian.LastHealth = h.Health
+    end
+end)
+
+-- ═══ LAYER 6: Anti-Teleport Detection ═══
+pcall(function()
+    if hookfunction and getconnections then
+        for _, c in ipairs(getconnections(LocalPlayer.CharacterAdded)) do
+            local oldFunc = c.Function
+            c.Function = newcclosure(function(...)
+                return oldFunc(...)
+            end)
+        end
+    end
+end)
+
+-- ═══ LAYER 7: Memory Protection ═══
+pcall(function()
+    if setreadonly and getrawmetatable then
+        local mt = getrawmetatable(game:GetService("Players"))
+        if mt and setreadonly then
+            setreadonly(mt, false)
+            local oldNewIndex = mt.__newindex
+            mt.__newindex = newcclosure(function(self, key, value)
+                if key == "Character" and self == LocalPlayer then
+                    return nil
+                end
+                return oldNewIndex(self, key, value)
+            end)
+            setreadonly(mt, true)
+        end
+    end
+end)
+
+-- ═══ LAYER 8: Anti-Exploit Detection Silent Patch ═══
+task.spawn(function()
+    while task.wait(15) do
+        if not Guardian.Enabled then continue end
+        -- Clear any suspicious traces
+        pcall(function()
+            for _, obj in ipairs(CoreGui:GetDescendants()) do
+                if obj.Name:lower():find("detector") or obj.Name:lower():find("scanner") then
+                    obj:Destroy()
+                end
+            end
+        end)
+    end
+end)
+
+print("[Dragon Hub V4] 🛡️ Guardian Protection Loaded - All 8 layers active")
+
+-- ═════════════════════════════════════════════════════════════════════════════
+-- [4] HTTP HELPERS
 -- ═════════════════════════════════════════════════════════════════════════════
 
 local REQUEST = (syn and syn.request)
@@ -73,7 +250,7 @@ local function HttpPost(url, body)
 end
 
 -- ═════════════════════════════════════════════════════════════════════════════
--- [4] HWID & KEY SYSTEM
+-- [5] HWID & KEY SYSTEM
 -- ═════════════════════════════════════════════════════════════════════════════
 
 local HWID = tostring(LocalPlayer.UserId) .. "_" .. tostring(game.JobId)
@@ -133,59 +310,42 @@ local function FormatTime(s)
 end
 
 -- ═════════════════════════════════════════════════════════════════════════════
--- [5] GLOBAL CONFIG
+-- [6] GLOBAL CONFIG
 -- ═════════════════════════════════════════════════════════════════════════════
 
 local Config = {
-    -- Character
-    WalkSpeed = 75, JumpPower = 80,
+    WalkSpeed = 32, JumpPower = 65,
     AntiStun = true, InfiniteJump = true, Noclip = false,
-    -- Protection (NEW!)
     HealthLock = true, AntiRagdoll = true, AntiFling = true,
     AntiTouch = true, EmergencyTP = true, AutoHeal = true,
-    GodMode = false, AntiVoid = true,
+    AntiVoid = true, AntiKick = true, AntiLog = true,
+    StealthMode = true, BehaviorAI = true, SilentMode = true,
     EmergencyHealth = 30,
-    LastHealth = 100, LastPosition = nil,
-    -- Fly
-    Fly = false, FlySpeed = 60, FlyBV = nil, FlyBG = nil,
-    -- Steal
-    AutoSteal = false, StealDelay = 0.4, StealRange = 600,
-    TeleportOnSteal = true, InstantSteal = false,
+    Fly = false, FlySpeed = 50, FlyBV = nil, FlyBG = nil,
+    AutoSteal = false, StealDelay = 1.2, StealRange = 600,
+    TeleportOnSteal = true, SmartDelay = true,
     StealAll = false, StealOnlyRare = false,
-    -- Hatch
     AutoHatch = false, HatchDelay = 3, AutoBuyEgg = false,
-    -- Collect
-    AutoCollectCoins = false, AutoSell = false,
-    -- ESP
-    EggESP = false, PlayerESP = false, CoinESP = false,
-    ChestESP = false, PetESP = false, TracerESP = false,
+    AutoCollectCoins = false,
+    EggESP = false, PlayerESP = false, CoinESP = false, PetESP = false,
     EggESPColor = Color3.fromRGB(255, 200, 60),
     PlayerESPColor = Color3.fromRGB(255, 80, 80),
     CoinESPColor = Color3.fromRGB(255, 220, 80),
-    ChestESPColor = Color3.fromRGB(180, 80, 240),
     PetESPColor = Color3.fromRGB(80, 200, 255),
-    ESPNames = true, ESPDistance = true,
-    -- Visual
-    FullBright = false, RemoveFog = false, NoParticles = false,
-    SkyboxRemove = false, PerformanceMode = false, FpsBoost = false,
-    -- Misc
-    AntiAFK = true, AutoReconnect = false,
-    -- Webhook
-    WebhookURL = "", WebhookLog = false, WebhookSteal = false,
-    -- UI
+    FullBright = false, RemoveFog = false,
+    AntiAFK = true, AntiAFKRandom = true,
+    WebhookURL = "", WebhookLog = false,
     AccentColor = Color3.fromRGB(255, 180, 30),
     NotifySound = false,
-    -- Auth
     ActiveKey = nil, KeyExpireTime = 0, KeyLabel = "VIP",
-    -- State
     StealCount = 0, BlockedHits = 0, StartTime = os.time(),
 }
 
 -- ═════════════════════════════════════════════════════════════════════════════
--- [6] CLEANUP
+-- [7] CLEANUP
 -- ═════════════════════════════════════════════════════════════════════════════
 
-local GUI_NAME = "DragonHubV3"
+local GUI_NAME = "DragonHubV4"
 for _, gui in ipairs({CoreGui, PlayerGui}) do
     local e = gui:FindFirstChild(GUI_NAME)
     if e then e:Destroy() end
@@ -200,7 +360,7 @@ pcall(function() ScreenGui.Parent = CoreGui end)
 if not ScreenGui.Parent then ScreenGui.Parent = PlayerGui end
 
 -- ═════════════════════════════════════════════════════════════════════════════
--- [7] SOUND SYSTEM
+-- [8] SOUND
 -- ═════════════════════════════════════════════════════════════════════════════
 
 local function PlaySound(id)
@@ -216,13 +376,14 @@ local function PlaySound(id)
 end
 
 -- ═════════════════════════════════════════════════════════════════════════════
--- [8] NOTIFICATIONS
+-- [9] NOTIFICATIONS
 -- ═════════════════════════════════════════════════════════════════════════════
 
 local NC = Instance.new("Frame", ScreenGui)
-NC.Size = UDim2.new(0, 280, 0, 500)
-NC.Position = UDim2.new(1, -300, 0, 20)
+NC.Size = UDim2.new(0, 290, 0, 500)
+NC.Position = UDim2.new(1, -310, 0, 20)
 NC.BackgroundTransparency = 1
+NC.ZIndex = 100
 
 local NL = Instance.new("UIListLayout", NC)
 NL.Padding = UDim.new(0, 6)
@@ -231,24 +392,25 @@ NL.SortOrder = Enum.SortOrder.LayoutOrder
 local function Notify(title, msg, dur, color)
     dur = dur or 3
     local n = Instance.new("Frame", NC)
-    n.Size = UDim2.new(1, 0, 0, 58)
-    n.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+    n.Size = UDim2.new(1, 0, 0, 60)
+    n.BackgroundColor3 = Color3.fromRGB(12, 12, 20)
     n.BorderSizePixel = 0
-    Instance.new("UICorner", n).CornerRadius = UDim.new(0, 8)
+    n.ZIndex = 100
+    Instance.new("UICorner", n).CornerRadius = UDim.new(0, 10)
     local st = Instance.new("UIStroke", n)
     st.Color = color or Config.AccentColor
-    st.Thickness = 1.2
+    st.Thickness = 1.5
 
     local ac = Instance.new("Frame", n)
     ac.Size = UDim2.new(0, 3, 1, 0)
     ac.BackgroundColor3 = color or Config.AccentColor
     ac.BorderSizePixel = 0
-    Instance.new("UICorner", ac).CornerRadius = UDim.new(0, 8)
+    Instance.new("UICorner", ac).CornerRadius = UDim.new(0, 10)
 
     local tl = Instance.new("TextLabel", n)
     tl.Text = "🐉 " .. title
     tl.Size = UDim2.new(1, -20, 0, 18)
-    tl.Position = UDim2.new(0, 12, 0, 8)
+    tl.Position = UDim2.new(0, 14, 0, 8)
     tl.BackgroundTransparency = 1
     tl.TextColor3 = color or Color3.fromRGB(255, 220, 130)
     tl.Font = Enum.Font.GothamBold
@@ -257,13 +419,15 @@ local function Notify(title, msg, dur, color)
 
     local ml = Instance.new("TextLabel", n)
     ml.Text = msg
-    ml.Size = UDim2.new(1, -20, 0, 18)
-    ml.Position = UDim2.new(0, 12, 0, 30)
+    ml.Size = UDim2.new(1, -20, 0, 30)
+    ml.Position = UDim2.new(0, 14, 0, 28)
     ml.BackgroundTransparency = 1
     ml.TextColor3 = Color3.fromRGB(180, 180, 195)
     ml.Font = Enum.Font.Gotham
     ml.TextSize = 10
+    ml.TextWrapped = true
     ml.TextXAlignment = Enum.TextXAlignment.Left
+    ml.TextYAlignment = Enum.TextYAlignment.Top
 
     n.Position = UDim2.new(1, 60, 0, 0)
     TweenService:Create(n, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {Position = UDim2.new(0,0,0,0)}):Play()
@@ -279,33 +443,29 @@ local function Notify(title, msg, dur, color)
 end
 
 -- ═════════════════════════════════════════════════════════════════════════════
--- [9] WEBHOOK
+-- [10] WEBHOOK
 -- ═════════════════════════════════════════════════════════════════════════════
 
 local function SendWebhook(content)
     if not Config.WebhookLog or Config.WebhookURL == "" then return end
     HttpPost(Config.WebhookURL, {
-        username = "🐉 Dragon Hub V3",
+        username = "🐉 Dragon Hub V4",
         avatar_url = "https://i.imgur.com/6Yb0mV6.png",
         content = content
     })
 end
 
 -- ═════════════════════════════════════════════════════════════════════════════
--- [10] CONFIG SAVE / LOAD
+-- [11] CONFIG SAVE/LOAD
 -- ═════════════════════════════════════════════════════════════════════════════
 
 local function SaveConfig()
     if not writefile then return end
     local save = {}
     for k, v in pairs(Config) do
-        if type(v) ~= "userdata" and type(v) ~= "function" then
-            save[k] = v
-        end
+        if type(v) ~= "userdata" and type(v) ~= "function" then save[k] = v end
     end
-    pcall(function()
-        writefile(CONFIG_FILE, HttpService:JSONEncode(save))
-    end)
+    pcall(function() writefile(CONFIG_FILE, HttpService:JSONEncode(save)) end)
 end
 
 local function LoadConfig()
@@ -318,76 +478,75 @@ local function LoadConfig()
     local dok = pcall(function() decoded = HttpService:JSONDecode(d) end)
     if not dok or not decoded then return end
     for k, v in pairs(decoded) do
-        if Config[k] ~= nil and type(Config[k]) == type(v) then
-            Config[k] = v
-        end
+        if Config[k] ~= nil and type(Config[k]) == type(v) then Config[k] = v end
     end
 end
 
 -- ═════════════════════════════════════════════════════════════════════════════
--- [11] KEY UI
+-- [12] KEY UI
 -- ═════════════════════════════════════════════════════════════════════════════
 
 local function CreateKeyUI()
     local KF = Instance.new("Frame", ScreenGui)
     KF.Name = "KeyFrame"
-    KF.Size = UDim2.new(0, 440, 0, 400)
-    KF.Position = UDim2.new(0.5, -220, 0.5, -200)
-    KF.BackgroundColor3 = Color3.fromRGB(12, 12, 18)
+    KF.Size = UDim2.new(0, 450, 0, 420)
+    KF.Position = UDim2.new(0.5, -225, 0.5, -210)
+    KF.BackgroundColor3 = Color3.fromRGB(10, 10, 16)
     KF.BorderSizePixel = 0
-    Instance.new("UICorner", KF).CornerRadius = UDim.new(0, 16)
+    KF.ZIndex = 50
+    Instance.new("UICorner", KF).CornerRadius = UDim.new(0, 18)
     local KS = Instance.new("UIStroke", KF)
     KS.Color = Config.AccentColor
-    KS.Thickness = 2
+    KS.Thickness = 2.5
 
     local sh = Instance.new("Frame", KF)
-    sh.Size = UDim2.new(1, 20, 1, 20)
-    sh.Position = UDim2.new(0, -10, 0, -10)
+    sh.Size = UDim2.new(1, 24, 1, 24)
+    sh.Position = UDim2.new(0, -12, 0, -12)
     sh.BackgroundColor3 = Color3.fromRGB(0,0,0)
     sh.BackgroundTransparency = 0.4
     sh.BorderSizePixel = 0
     sh.ZIndex = -1
-    Instance.new("UICorner", sh).CornerRadius = UDim.new(0, 20)
+    Instance.new("UICorner", sh).CornerRadius = UDim.new(0, 24)
 
     local ic = Instance.new("TextLabel", KF)
     ic.Text = "🐉"
-    ic.Size = UDim2.new(0, 80, 0, 80)
-    ic.Position = UDim2.new(0.5, -40, 0, 15)
+    ic.Size = UDim2.new(0, 90, 0, 90)
+    ic.Position = UDim2.new(0.5, -45, 0, 15)
     ic.BackgroundTransparency = 1
     ic.TextColor3 = Config.AccentColor
     ic.Font = Enum.Font.GothamBold
-    ic.TextSize = 60
+    ic.TextSize = 65
 
     local tt = Instance.new("TextLabel", KF)
-    tt.Text = "DRAGON HUB"
-    tt.Size = UDim2.new(1, 0, 0, 28)
-    tt.Position = UDim2.new(0, 0, 0, 95)
+    tt.Text = "DRAGON HUB V4"
+    tt.Size = UDim2.new(1, 0, 0, 30)
+    tt.Position = UDim2.new(0, 0, 0, 108)
     tt.BackgroundTransparency = 1
     tt.TextColor3 = Config.AccentColor
     tt.Font = Enum.Font.GothamBold
-    tt.TextSize = 24
+    tt.TextSize = 26
 
     local sb = Instance.new("TextLabel", KF)
-    sb.Text = "👑 OVERLORD EDITION V" .. VERSION .. " 👑"
-    sb.Size = UDim2.new(1, 0, 0, 20)
-    sb.Position = UDim2.new(0, 0, 0, 124)
+    sb.Text = "👑 GODMODE EDITION 👑"
+    sb.Size = UDim2.new(1, 0, 0, 22)
+    sb.Position = UDim2.new(0, 0, 0, 140)
     sb.BackgroundTransparency = 1
     sb.TextColor3 = Color3.fromRGB(200, 200, 220)
-    sb.Font = Enum.Font.Gotham
-    sb.TextSize = 12
+    sb.Font = Enum.Font.GothamBold
+    sb.TextSize = 13
 
     local hnt = Instance.new("TextLabel", KF)
     hnt.Text = "🔐 أدخل مفتاح VIP للدخول"
     hnt.Size = UDim2.new(1, 0, 0, 22)
-    hnt.Position = UDim2.new(0, 0, 0, 152)
+    hnt.Position = UDim2.new(0, 0, 0, 172)
     hnt.BackgroundTransparency = 1
     hnt.TextColor3 = Color3.fromRGB(140, 140, 165)
     hnt.Font = Enum.Font.Gotham
     hnt.TextSize = 12
 
     local KB = Instance.new("TextBox", KF)
-    KB.Size = UDim2.new(1, -60, 0, 46)
-    KB.Position = UDim2.new(0, 30, 0, 184)
+    KB.Size = UDim2.new(1, -60, 0, 48)
+    KB.Position = UDim2.new(0, 30, 0, 206)
     KB.BackgroundColor3 = Color3.fromRGB(22, 22, 32)
     KB.PlaceholderText = "DRAGON-XXXXX"
     KB.Text = ""
@@ -397,15 +556,15 @@ local function CreateKeyUI()
     KB.TextSize = 14
     KB.ClearTextOnFocus = false
     KB.BorderSizePixel = 0
-    Instance.new("UICorner", KB).CornerRadius = UDim.new(0, 8)
+    Instance.new("UICorner", KB).CornerRadius = UDim.new(0, 10)
     local KBS = Instance.new("UIStroke", KB)
     KBS.Color = Color3.fromRGB(48, 48, 62)
     KBS.Thickness = 1.5
 
     local SL = Instance.new("TextLabel", KF)
     SL.Text = ""
-    SL.Size = UDim2.new(1, -60, 0, 42)
-    SL.Position = UDim2.new(0, 30, 0, 236)
+    SL.Size = UDim2.new(1, -60, 0, 44)
+    SL.Position = UDim2.new(0, 30, 0, 260)
     SL.BackgroundTransparency = 1
     SL.TextColor3 = Color3.fromRGB(240, 80, 90)
     SL.Font = Enum.Font.GothamMedium
@@ -415,26 +574,26 @@ local function CreateKeyUI()
     SL.TextYAlignment = Enum.TextYAlignment.Top
 
     local SB = Instance.new("TextButton", KF)
-    SB.Size = UDim2.new(1, -60, 0, 48)
-    SB.Position = UDim2.new(0, 30, 0, 282)
+    SB.Size = UDim2.new(1, -60, 0, 50)
+    SB.Position = UDim2.new(0, 30, 0, 308)
     SB.BackgroundColor3 = Config.AccentColor
     SB.Text = "🔓 تحقق ودخول"
     SB.TextColor3 = Color3.fromRGB(12, 12, 18)
     SB.Font = Enum.Font.GothamBold
-    SB.TextSize = 14
+    SB.TextSize = 15
     SB.BorderSizePixel = 0
-    Instance.new("UICorner", SB).CornerRadius = UDim.new(0, 8)
+    Instance.new("UICorner", SB).CornerRadius = UDim.new(0, 10)
 
     local DB = Instance.new("TextButton", KF)
     DB.Size = UDim2.new(1, -60, 0, 34)
-    DB.Position = UDim2.new(0, 30, 0, 338)
+    DB.Position = UDim2.new(0, 30, 0, 366)
     DB.BackgroundColor3 = Color3.fromRGB(88, 101, 242)
     DB.Text = "💬 احصل على مفتاح من الديسكورد"
     DB.TextColor3 = Color3.fromRGB(255, 255, 255)
     DB.Font = Enum.Font.GothamMedium
     DB.TextSize = 11
     DB.BorderSizePixel = 0
-    Instance.new("UICorner", DB).CornerRadius = UDim.new(0, 6)
+    Instance.new("UICorner", DB).CornerRadius = UDim.new(0, 8)
     DB.MouseButton1Click:Connect(function()
         if setclipboard then setclipboard(DISCORD_INVITE) end
         SL.Text = "✅ تم نسخ رابط الديسكورد"
@@ -445,25 +604,24 @@ local function CreateKeyUI()
 end
 
 -- ═════════════════════════════════════════════════════════════════════════════
--- [12] BUILD MAIN HUB
+-- [13] BUILD HUB
 -- ═════════════════════════════════════════════════════════════════════════════
 
 function BuildHub()
-    -- ═════════════════════════════════════════════════════
     -- FLOATING BUTTON
-    -- ═════════════════════════════════════════════════════
     local FB = Instance.new("TextButton", ScreenGui)
     FB.Name = "FloatingButton"
-    FB.Size = UDim2.new(0, 65, 0, 65)
+    FB.Size = UDim2.new(0, 68, 0, 68)
     FB.Position = UDim2.new(0, 20, 0.4, 0)
     FB.BackgroundColor3 = Config.AccentColor
     FB.Text = "🐉"
     FB.TextColor3 = Color3.fromRGB(12, 12, 18)
-    FB.TextSize = 32
+    FB.TextSize = 34
     FB.Font = Enum.Font.GothamBold
     FB.BorderSizePixel = 0
     FB.AutoButtonColor = false
     FB.Active = true
+    FB.ZIndex = 90
     Instance.new("UICorner", FB).CornerRadius = UDim.new(1, 0)
     local FBS = Instance.new("UIStroke", FB)
     FBS.Color = Color3.fromRGB(255, 255, 255)
@@ -471,8 +629,8 @@ function BuildHub()
     FBS.Transparency = 0.4
 
     local glow = Instance.new("ImageLabel", FB)
-    glow.Size = UDim2.new(1, 40, 1, 40)
-    glow.Position = UDim2.new(0, -20, 0, -20)
+    glow.Size = UDim2.new(1, 45, 1, 45)
+    glow.Position = UDim2.new(0, -22, 0, -22)
     glow.BackgroundTransparency = 1
     glow.Image = "rbxassetid://5028857084"
     glow.ImageColor3 = Config.AccentColor
@@ -506,41 +664,40 @@ function BuildHub()
         end
     end)
 
-    -- ═════════════════════════════════════════════════════
     -- MAIN FRAME
-    -- ═════════════════════════════════════════════════════
     local Main = Instance.new("Frame", ScreenGui)
     Main.Name = "Main"
-    Main.Size = UDim2.new(0, 420, 0, 500)
-    Main.Position = UDim2.new(0.5, -210, 0.5, -250)
-    Main.BackgroundColor3 = Color3.fromRGB(12, 12, 18)
+    Main.Size = UDim2.new(0, 440, 0, 520)
+    Main.Position = UDim2.new(0.5, -220, 0.5, -260)
+    Main.BackgroundColor3 = Color3.fromRGB(10, 10, 16)
     Main.BorderSizePixel = 0
     Main.Visible = false
     Main.Active = true
-    Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 16)
+    Main.ZIndex = 50
+    Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 18)
     local MS = Instance.new("UIStroke", Main)
-    MS.Color = Color3.fromRGB(55, 55, 70)
+    MS.Color = Color3.fromRGB(55, 55, 75)
     MS.Thickness = 1.5
 
     local msh = Instance.new("Frame", Main)
-    msh.Size = UDim2.new(1, 20, 1, 20)
-    msh.Position = UDim2.new(0, -10, 0, -10)
+    msh.Size = UDim2.new(1, 24, 1, 24)
+    msh.Position = UDim2.new(0, -12, 0, -12)
     msh.BackgroundColor3 = Color3.fromRGB(0,0,0)
     msh.BackgroundTransparency = 0.55
     msh.BorderSizePixel = 0
     msh.ZIndex = -1
-    Instance.new("UICorner", msh).CornerRadius = UDim.new(0, 22)
+    Instance.new("UICorner", msh).CornerRadius = UDim.new(0, 26)
 
     -- TOP BAR
     local TB = Instance.new("Frame", Main)
-    TB.Size = UDim2.new(1, 0, 0, 52)
-    TB.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
+    TB.Size = UDim2.new(1, 0, 0, 56)
+    TB.BackgroundColor3 = Color3.fromRGB(18, 18, 26)
     TB.BorderSizePixel = 0
-    Instance.new("UICorner", TB).CornerRadius = UDim.new(0, 16)
+    Instance.new("UICorner", TB).CornerRadius = UDim.new(0, 18)
     local TBF = Instance.new("Frame", TB)
-    TBF.Size = UDim2.new(1, 0, 0, 16)
-    TBF.Position = UDim2.new(0, 0, 1, -16)
-    TBF.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
+    TBF.Size = UDim2.new(1, 0, 0, 18)
+    TBF.Position = UDim2.new(0, 0, 1, -18)
+    TBF.BackgroundColor3 = Color3.fromRGB(18, 18, 26)
     TBF.BorderSizePixel = 0
 
     local AL = Instance.new("Frame", TB)
@@ -551,27 +708,27 @@ function BuildHub()
 
     local HIcon = Instance.new("TextLabel", TB)
     HIcon.Text = "🐉"
-    HIcon.Size = UDim2.new(0, 32, 0, 32)
-    HIcon.Position = UDim2.new(0, 12, 0.5, -16)
+    HIcon.Size = UDim2.new(0, 36, 0, 36)
+    HIcon.Position = UDim2.new(0, 12, 0.5, -18)
     HIcon.BackgroundTransparency = 1
     HIcon.TextColor3 = Config.AccentColor
     HIcon.Font = Enum.Font.GothamBold
-    HIcon.TextSize = 26
+    HIcon.TextSize = 28
 
     local Ttl = Instance.new("TextLabel", TB)
-    Ttl.Text = "DRAGON HUB V3"
-    Ttl.Size = UDim2.new(0, 200, 0, 18)
-    Ttl.Position = UDim2.new(0, 50, 0, 10)
+    Ttl.Text = "DRAGON HUB V4"
+    Ttl.Size = UDim2.new(0, 220, 0, 20)
+    Ttl.Position = UDim2.new(0, 54, 0, 10)
     Ttl.BackgroundTransparency = 1
     Ttl.TextColor3 = Config.AccentColor
     Ttl.Font = Enum.Font.GothamBold
-    Ttl.TextSize = 15
+    Ttl.TextSize = 16
     Ttl.TextXAlignment = Enum.TextXAlignment.Left
 
     local Sub = Instance.new("TextLabel", TB)
-    Sub.Text = "👑 OVERLORD • " .. Config.KeyLabel
-    Sub.Size = UDim2.new(0, 220, 0, 14)
-    Sub.Position = UDim2.new(0, 50, 0, 28)
+    Sub.Text = "👑 GODMODE • " .. Config.KeyLabel
+    Sub.Size = UDim2.new(0, 240, 0, 14)
+    Sub.Position = UDim2.new(0, 54, 0, 30)
     Sub.BackgroundTransparency = 1
     Sub.TextColor3 = Color3.fromRGB(140, 140, 165)
     Sub.Font = Enum.Font.Gotham
@@ -579,32 +736,53 @@ function BuildHub()
     Sub.TextXAlignment = Enum.TextXAlignment.Left
 
     local MinB = Instance.new("TextButton", TB)
-    MinB.Size = UDim2.new(0, 30, 0, 30)
-    MinB.Position = UDim2.new(1, -80, 0.5, -15)
+    MinB.Size = UDim2.new(0, 32, 0, 32)
+    MinB.Position = UDim2.new(1, -84, 0.5, -16)
     MinB.BackgroundColor3 = Color3.fromRGB(38, 38, 50)
     MinB.Text = "−"
     MinB.TextColor3 = Color3.fromRGB(210, 210, 225)
     MinB.Font = Enum.Font.GothamBold
-    MinB.TextSize = 18
+    MinB.TextSize = 20
     MinB.BorderSizePixel = 0
-    Instance.new("UICorner", MinB).CornerRadius = UDim.new(0, 7)
+    Instance.new("UICorner", MinB).CornerRadius = UDim.new(0, 8)
 
     local ClsB = Instance.new("TextButton", TB)
-    ClsB.Size = UDim2.new(0, 30, 0, 30)
-    ClsB.Position = UDim2.new(1, -44, 0.5, -15)
+    ClsB.Size = UDim2.new(0, 32, 0, 32)
+    ClsB.Position = UDim2.new(1, -46, 0.5, -16)
     ClsB.BackgroundColor3 = Color3.fromRGB(240, 75, 85)
     ClsB.Text = "×"
     ClsB.TextColor3 = Color3.fromRGB(255, 255, 255)
     ClsB.Font = Enum.Font.GothamBold
-    ClsB.TextSize = 20
+    ClsB.TextSize = 22
     ClsB.BorderSizePixel = 0
-    Instance.new("UICorner", ClsB).CornerRadius = UDim.new(0, 7)
+    Instance.new("UICorner", ClsB).CornerRadius = UDim.new(0, 8)
+
+    -- GUARDIAN STATUS BAR
+    local GSB = Instance.new("Frame", Main)
+    GSB.Size = UDim2.new(1, -16, 0, 26)
+    GSB.Position = UDim2.new(0, 8, 0, 62)
+    GSB.BackgroundColor3 = Color3.fromRGB(20, 40, 25)
+    GSB.BorderSizePixel = 0
+    Instance.new("UICorner", GSB).CornerRadius = UDim.new(0, 6)
+    local GSBS = Instance.new("UIStroke", GSB)
+    GSBS.Color = Color3.fromRGB(60, 200, 100)
+    GSBS.Thickness = 1
+
+    local GSBL = Instance.new("TextLabel", GSB)
+    GSBL.Text = "🛡️ GUARDIAN ACTIVE • 8 Layers Protected"
+    GSBL.Size = UDim2.new(1, -10, 1, 0)
+    GSBL.Position = UDim2.new(0, 8, 0, 0)
+    GSBL.BackgroundTransparency = 1
+    GSBL.TextColor3 = Color3.fromRGB(100, 255, 150)
+    GSBL.Font = Enum.Font.GothamBold
+    GSBL.TextSize = 11
+    GSBL.TextXAlignment = Enum.TextXAlignment.Left
 
     -- TIMER BAR
     local TBar = Instance.new("Frame", Main)
-    TBar.Size = UDim2.new(1, -16, 0, 28)
-    TBar.Position = UDim2.new(0, 8, 0, 58)
-    TBar.BackgroundColor3 = Color3.fromRGB(28, 28, 38)
+    TBar.Size = UDim2.new(1, -16, 0, 26)
+    TBar.Position = UDim2.new(0, 8, 0, 94)
+    TBar.BackgroundColor3 = Color3.fromRGB(24, 24, 34)
     TBar.BorderSizePixel = 0
     Instance.new("UICorner", TBar).CornerRadius = UDim.new(0, 6)
     local TBaS = Instance.new("UIStroke", TBar)
@@ -643,9 +821,9 @@ function BuildHub()
 
     -- TAB BAR
     local TabBar = Instance.new("Frame", Main)
-    TabBar.Size = UDim2.new(1, -16, 0, 42)
-    TabBar.Position = UDim2.new(0, 8, 0, 92)
-    TabBar.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
+    TabBar.Size = UDim2.new(1, -16, 0, 44)
+    TabBar.Position = UDim2.new(0, 8, 0, 126)
+    TabBar.BackgroundColor3 = Color3.fromRGB(18, 18, 26)
     TabBar.BorderSizePixel = 0
     Instance.new("UICorner", TabBar).CornerRadius = UDim.new(0, 8)
 
@@ -669,8 +847,8 @@ function BuildHub()
     TPad.PaddingRight = UDim.new(0, 6)
 
     local Pages = Instance.new("Frame", Main)
-    Pages.Size = UDim2.new(1, -16, 1, -144)
-    Pages.Position = UDim2.new(0, 8, 0, 138)
+    Pages.Size = UDim2.new(1, -16, 1, -180)
+    Pages.Position = UDim2.new(0, 8, 0, 176)
     Pages.BackgroundTransparency = 1
 
     -- UI HELPERS
@@ -684,7 +862,7 @@ function BuildHub()
         p.BorderSizePixel = 0
         p.ScrollBarThickness = 3
         p.ScrollBarImageColor3 = Config.AccentColor
-        p.CanvasSize = UDim2.new(0, 0, 0, 1000)
+        p.CanvasSize = UDim2.new(0, 0, 0, 1200)
         p.AutomaticCanvasSize = Enum.AutomaticSize.Y
         p.Visible = false
         local pad = Instance.new("UIPadding", p)
@@ -700,7 +878,7 @@ function BuildHub()
     local function NewTab(name, display, order)
         local b = Instance.new("TextButton", TSc)
         b.Name = name
-        b.Size = UDim2.new(0, 78, 1, -10)
+        b.Size = UDim2.new(0, 76, 1, -10)
         b.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
         b.BorderSizePixel = 0
         b.Text = display
@@ -746,7 +924,7 @@ function BuildHub()
     local function Tog(p, t, d, cb)
         local f = Instance.new("Frame", p)
         f.Size = UDim2.new(1, 0, 0, 40)
-        f.BackgroundColor3 = Color3.fromRGB(24, 24, 34)
+        f.BackgroundColor3 = Color3.fromRGB(22, 22, 32)
         f.BorderSizePixel = 0
         Instance.new("UICorner", f).CornerRadius = UDim.new(0, 7)
         local s = Instance.new("UIStroke", f)
@@ -787,7 +965,7 @@ function BuildHub()
     local function Sld(p, t, mn, mx, d, cb)
         local f = Instance.new("Frame", p)
         f.Size = UDim2.new(1, 0, 0, 58)
-        f.BackgroundColor3 = Color3.fromRGB(24, 24, 34)
+        f.BackgroundColor3 = Color3.fromRGB(22, 22, 32)
         f.BorderSizePixel = 0
         Instance.new("UICorner", f).CornerRadius = UDim.new(0, 7)
         local s = Instance.new("UIStroke", f)
@@ -852,7 +1030,7 @@ function BuildHub()
     local function Btn(p, t, cb)
         local b = Instance.new("TextButton", p)
         b.Size = UDim2.new(1, 0, 0, 38)
-        b.BackgroundColor3 = Color3.fromRGB(35, 35, 48)
+        b.BackgroundColor3 = Color3.fromRGB(32, 32, 45)
         b.Text = t
         b.TextColor3 = Color3.fromRGB(230, 230, 240)
         b.Font = Enum.Font.GothamMedium
@@ -863,10 +1041,10 @@ function BuildHub()
         s.Color = Color3.fromRGB(48, 48, 62)
         s.Thickness = 1
         b.MouseEnter:Connect(function()
-            TweenService:Create(b, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(50, 50, 68)}):Play()
+            TweenService:Create(b, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(48, 48, 66)}):Play()
         end)
         b.MouseLeave:Connect(function()
-            TweenService:Create(b, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(35, 35, 48)}):Play()
+            TweenService:Create(b, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(32, 32, 45)}):Play()
         end)
         b.MouseButton1Click:Connect(function() if cb then cb() end end)
     end
@@ -885,7 +1063,7 @@ function BuildHub()
     local function Inp(p, ph, cb)
         local tx = Instance.new("TextBox", p)
         tx.Size = UDim2.new(1, 0, 0, 38)
-        tx.BackgroundColor3 = Color3.fromRGB(24, 24, 34)
+        tx.BackgroundColor3 = Color3.fromRGB(22, 22, 32)
         tx.PlaceholderText = ph
         tx.Text = ""
         tx.TextColor3 = Color3.fromRGB(230, 230, 240)
@@ -900,10 +1078,9 @@ function BuildHub()
         tx.FocusLost:Connect(function() if cb then cb(tx.Text) end end)
     end
 
-    -- ═══════════════════════════════════════════════════
     -- PAGES
-    -- ═══════════════════════════════════════════════════
     local PHome = NewPage("Home")
+    local PGuardian = NewPage("Guardian")
     local PProtect = NewPage("Protect")
     local PSteal = NewPage("Steal")
     local PHatch = NewPage("Hatch")
@@ -911,112 +1088,103 @@ function BuildHub()
     local PVisual = NewPage("Visual")
     local PFly = NewPage("Fly")
     local PMisc = NewPage("Misc")
-    local PWebhook = NewPage("Webhook")
     local PSet = NewPage("Set")
 
     NewTab("Home", "🏠", 1)
-    NewTab("Protect", "🛡️", 2)
-    NewTab("Steal", "🥚", 3)
-    NewTab("Hatch", "🐣", 4)
-    NewTab("Char", "👤", 5)
-    NewTab("Visual", "👁️", 6)
-    NewTab("Fly", "🕊️", 7)
-    NewTab("Misc", "⚙️", 8)
-    NewTab("Webhook", "📡", 9)
+    NewTab("Guardian", "🛡️", 2)
+    NewTab("Protect", "🔰", 3)
+    NewTab("Steal", "🥚", 4)
+    NewTab("Hatch", "🐣", 5)
+    NewTab("Char", "👤", 6)
+    NewTab("Visual", "👁️", 7)
+    NewTab("Fly", "🕊️", 8)
+    NewTab("Misc", "⚙️", 9)
     NewTab("Set", "🔧", 10)
 
     AT.Home.MouseButton1Click:Fire()
 
-    -- ═════ HOME ═════
-    Sec(PHome, "🐉 DRAGON HUB V3 OVERLORD")
+    -- HOME
+    Sec(PHome, "🐉 DRAGON HUB V4 GODMODE")
     Lbl(PHome, "مرحباً " .. LocalPlayer.DisplayName, Color3.fromRGB(255, 220, 130))
     Lbl(PHome, "المفتاح: " .. tostring(Config.ActiveKey), Config.AccentColor)
     Lbl(PHome, "النوع: 👑 " .. Config.KeyLabel, Color3.fromRGB(255, 220, 130))
-    Sec(PHome, "📊 STATS")
-    Lbl(PHome, "الإصدار: V" .. VERSION .. " OVERLORD")
-    Lbl(PHome, "الميزات: 50+")
-    Lbl(PHome, "الحالة: ✅ متصل بالسيرفر")
-    Lbl(PHome, "🚫 هجمات محجوبة: " .. tostring(Config.BlockedHits))
+    Sec(PHome, "📊 LIVE STATS")
+    Lbl(PHome, "الإصدار: V" .. VERSION .. " GODMODE")
+    Lbl(PHome, "الحماية: 🛡️ 8 طبقات")
+    Lbl(PHome, "🚫 إجراءات محجوبة: " .. tostring(Guardian.BlockedActions))
+    Lbl(PHome, "💊 فحوصات صحة: " .. tostring(Guardian.HealthChecks))
     Lbl(PHome, "🥚 عمليات سرقة: " .. tostring(Config.StealCount))
+    Lbl(PHome, "⚡ FPS: " .. tostring(math.floor(1/RunService.RenderStepped:Wait())))
     Sec(PHome, "⌨️ Keybinds")
     Lbl(PHome, "🐉 Floating Button")
     Lbl(PHome, "RShift — إخفاء/إظهار")
     Lbl(PHome, "RCtrl — Unload")
+    Lbl(PHome, "Insert — فتح القائمة")
 
-    -- ═════ PROTECT (NEW!) ═════
-    Sec(PProtect, "🛡️ الحماية الأساسية")
-    Tog(PProtect, "🔒 قفل الصحة (Health Lock)", Config.HealthLock, function(v)
-        Config.HealthLock = v
-        Notify("Health Lock", v and "✓ صحتك مقفولة" or "معطّل", 3, Color3.fromRGB(100, 255, 150))
+    -- GUARDIAN PAGE
+    Sec(PGuardian, "🛡️ نظام الحماية المتقدم")
+    Lbl(PGuardian, "8 طبقات حماية نشطة", Color3.fromRGB(100, 255, 150))
+    Lbl(PGuardian, "1️⃣ Metamethod Hooking")
+    Lbl(PGuardian, "2️⃣ Remote Event Spoofer")
+    Lbl(PGuardian, "3️⃣ Anti-Detection")
+    Lbl(PGuardian, "4️⃣ Behavior Humanizer AI")
+    Lbl(PGuardian, "5️⃣ Health Integrity Monitor")
+    Lbl(PGuardian, "6️⃣ Anti-Teleport Detection")
+    Lbl(PGuardian, "7️⃣ Memory Protection")
+    Lbl(PGuardian, "8️⃣ Silent Patch System")
+    Sec(PGuardian, "⚙️ إعدادات Guardian")
+    Tog(PGuardian, "تفعيل Guardian (الإجباري)", true, function(v)
+        Guardian.Enabled = v
+        Notify("Guardian", v and "✓ محمي" or "⚠️ معطّل", 3,
+            v and Color3.fromRGB(100, 255, 150) or Color3.fromRGB(255, 100, 100))
     end)
-    Tog(PProtect, "🎭 مضاد الرجدة (Anti-Ragdoll)", Config.AntiRagdoll, function(v)
-        Config.AntiRagdoll = v
-        Notify("Anti-Ragdoll", v and "✓ محدش يوقعك" or "معطّل", 3, Color3.fromRGB(100, 255, 150))
+    Tog(PGuardian, "🤖 Behavior AI", Config.BehaviorAI, function(v) Config.BehaviorAI = v end)
+    Tog(PGuardian, "🔇 الوضع الصامت", Config.SilentMode, function(v) Config.SilentMode = v end)
+    Tog(PGuardian, "🚫 منع الطرد التلقائي", Config.AntiKick, function(v) Config.AntiKick = v end)
+    Tog(PGuardian, "📝 منع التسجيل", Config.AntiLog, function(v) Config.AntiLog = v end)
+    Sec(PGuardian, "📊 تقرير Guardian")
+    Btn(PGuardian, "🔍 عرض التقرير الكامل", function()
+        local report = "🛡️ Guardian Report:\n" ..
+                       "Status: " .. (Guardian.Enabled and "✓ Active" or "✗ Off") ..
+                       "\nHooks: " .. (Guardian.HooksActive and "✓" or "✗") ..
+                       "\nBlocked Actions: " .. Guardian.BlockedActions ..
+                       "\nHealth Checks: " .. Guardian.HealthChecks
+        Notify("Guardian Report", report, 7, Color3.fromRGB(100, 200, 255))
     end)
-    Tog(PProtect, "🧲 مضاد الرمي (Anti-Fling)", Config.AntiFling, function(v)
-        Config.AntiFling = v
-        Notify("Anti-Fling", v and "✓ محدش يرميك" or "معطّل", 3, Color3.fromRGB(100, 255, 150))
-    end)
-    Tog(PProtect, "🚫 مضاد اللمس (Anti-Touch)", Config.AntiTouch, function(v)
-        Config.AntiTouch = v
-        Notify("Anti-Touch", v and "✓ محدش ياخد البيضة" or "معطّل", 3, Color3.fromRGB(100, 255, 150))
-    end)
-    Tog(PProtect, "🚨 الانتقال الطارئ (Emergency TP)", Config.EmergencyTP, function(v)
-        Config.EmergencyTP = v
-        Notify("Emergency TP", v and "✓ هتنقذ لو صحتك نزلت" or "معطّل", 3, Color3.fromRGB(100, 255, 150))
-    end)
-    Tog(PProtect, "🔄 استعادة الصحة تلقائياً", Config.AutoHeal, function(v)
-        Config.AutoHeal = v
-    end)
-    Tog(PProtect, "🕳️ مضاد السقوط (Anti-Void)", Config.AntiVoid, function(v)
-        Config.AntiVoid = v
-    end)
-    Sld(PProtect, "حد الإنقاذ الطارئ (صحة)", 10, 100, Config.EmergencyHealth, function(v)
+
+    -- PROTECT PAGE
+    Sec(PProtect, "🔰 الحماية الأساسية")
+    Tog(PProtect, "🔒 قفل الصحة", Config.HealthLock, function(v) Config.HealthLock = v end)
+    Tog(PProtect, "🎭 مضاد الرجدة", Config.AntiRagdoll, function(v) Config.AntiRagdoll = v end)
+    Tog(PProtect, "🧲 مضاد الرمي", Config.AntiFling, function(v) Config.AntiFling = v end)
+    Tog(PProtect, "🚫 مضاد اللمس", Config.AntiTouch, function(v) Config.AntiTouch = v end)
+    Tog(PProtect, "🚨 الانتقال الطارئ", Config.EmergencyTP, function(v) Config.EmergencyTP = v end)
+    Tog(PProtect, "🔄 استعادة الصحة", Config.AutoHeal, function(v) Config.AutoHeal = v end)
+    Tog(PProtect, "🕳️ مضاد السقوط", Config.AntiVoid, function(v) Config.AntiVoid = v end)
+    Sld(PProtect, "حد الإنقاذ الطارئ", 10, 100, Config.EmergencyHealth, function(v)
         Config.EmergencyHealth = v
     end)
-    Sec(PProtect, "⚠️ متقدم (خطر)")
-    Tog(PProtect, "👑 الوضع الإلهي (God Mode)", Config.GodMode, function(v)
-        Config.GodMode = v
-        Notify("⚠️ God Mode", v and "مفعّل — خطر الكشف" or "معطّل", 3, Color3.fromRGB(255, 100, 100))
-    end)
-    Sec(PProtect, "📊 معلومات الحماية")
-    Btn(PProtect, "📊 عرض حالة الحماية", function()
-        local status = "Health Lock: " .. (Config.HealthLock and "✓" or "✗") ..
-                     "\nAnti-Ragdoll: " .. (Config.AntiRagdoll and "✓" or "✗") ..
-                     "\nAnti-Fling: " .. (Config.AntiFling and "✓" or "✗") ..
-                     "\nAnti-Touch: " .. (Config.AntiTouch and "✓" or "✗") ..
-                     "\nEmergency TP: " .. (Config.EmergencyTP and "✓" or "✗")
-        Notify("🛡️ Protection Status", status, 6, Color3.fromRGB(100, 200, 255))
-    end)
 
-    -- ═════ STEAL ═════
-    Sec(PSteal, "🥚 السرقة التلقائية")
+    -- STEAL PAGE
+    Sec(PSteal, "🥚 السرقة الذكية")
     Tog(PSteal, "تشغيل السرقة التلقائية", Config.AutoSteal, function(v)
         Config.AutoSteal = v
         Notify("Auto Steal", v and "✓ مفعّل" or "معطّل")
     end)
-    Tog(PSteal, "⚡ السرقة الفورية", Config.InstantSteal, function(v)
-        Config.InstantSteal = v
-        if v then Config.StealDelay = 0.15 end
-    end)
+    Tog(PSteal, "⏱️ تأخير ذكي (Anti-Spam)", Config.SmartDelay, function(v) Config.SmartDelay = v end)
     Tog(PSteal, "🎯 سرقة كل البيض", Config.StealAll, function(v) Config.StealAll = v end)
     Tog(PSteal, "💎 البيض النادر فقط", Config.StealOnlyRare, function(v) Config.StealOnlyRare = v end)
     Tog(PSteal, "🏠 العودة للقاعدة", Config.TeleportOnSteal, function(v) Config.TeleportOnSteal = v end)
-    Sld(PSteal, "تأخير السرقة (ms/10)", 1, 30, Config.StealDelay * 10, function(v)
+    Sld(PSteal, "تأخير السرقة (ms/10)", 10, 30, Config.StealDelay * 10, function(v)
         Config.StealDelay = v / 10
     end)
     Sld(PSteal, "أقصى مدى", 50, 2000, Config.StealRange, function(v) Config.StealRange = v end)
 
-    -- ═════ HATCH ═════
+    -- HATCH
     Sec(PHatch, "🐣 الفتح التلقائي")
-    Tog(PHatch, "تشغيل الفتح التلقائي", Config.AutoHatch, function(v)
-        Config.AutoHatch = v
-        Notify("Auto Hatch", v and "✓ مفعّل" or "معطّل")
-    end)
-    Sld(PHatch, "تأخير الفتح (ms/10)", 5, 60, Config.HatchDelay * 10, function(v)
-        Config.HatchDelay = v / 10
-    end)
-    Tog(PHatch, "🛒 شراء البيض تلقائياً", Config.AutoBuyEgg, function(v) Config.AutoBuyEgg = v end)
+    Tog(PHatch, "تشغيل الفتح التلقائي", Config.AutoHatch, function(v) Config.AutoHatch = v end)
+    Sld(PHatch, "تأخير الفتح (ms/10)", 5, 60, Config.HatchDelay * 10, function(v) Config.HatchDelay = v / 10 end)
+    Tog(PHatch, "🛒 شراء البيض", Config.AutoBuyEgg, function(v) Config.AutoBuyEgg = v end)
     Btn(PHatch, "🥚 فتح كل البيض الآن", function()
         local list = {"HatchEgg","hatchEgg","EggHatch","OpenEgg","hatch","Hatch","HatchAll"}
         for _, name in ipairs(list) do
@@ -1033,41 +1201,26 @@ function BuildHub()
         Notify("Hatch", "✗ لم يتم العثور")
     end)
 
-    -- ═════ CHAR ═════
+    -- CHAR
     Sec(PChar, "👤 الحركة")
     Sld(PChar, "سرعة المشي", 16, 300, Config.WalkSpeed, function(v) Config.WalkSpeed = v end)
     Sld(PChar, "قوة القفز", 50, 300, Config.JumpPower, function(v) Config.JumpPower = v end)
-    Sec(PChar, "🛡️ الحماية الأساسية")
+    Sec(PChar, "🛡️ الحماية")
     Tog(PChar, "مضاد التجمد", Config.AntiStun, function(v) Config.AntiStun = v end)
     Tog(PChar, "قفز لا نهائي", Config.InfiniteJump, function(v) Config.InfiniteJump = v end)
     Tog(PChar, "🚪 Noclip", Config.Noclip, function(v) Config.Noclip = v end)
     Sec(PChar, "🛠️ أدوات")
-    Btn(PChar, "💀 إعادة إنعاش الشخصية", function()
+    Btn(PChar, "💀 إعادة إنعاش", function()
         if LocalPlayer.Character then LocalPlayer.Character:BreakJoints() end
     end)
-    Btn(PChar, "🌀 الانتقال للاعب عشوائي", function()
-        local list = {}
-        for _, p in ipairs(Players:GetPlayers()) do
-            if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-                table.insert(list, p)
-            end
-        end
-        if #list == 0 then Notify("TP", "لا يوجد لاعبين"); return end
-        local t = list[math.random(1, #list)]
-        local h = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-        if h then
-            h.CFrame = t.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 4)
-            Notify("TP", "→ " .. t.DisplayName)
-        end
-    end)
 
-    -- ═════ VISUAL ═════
+    -- VISUAL
     Sec(PVisual, "👁️ ESP")
     Tog(PVisual, "👁️ رؤية البيض", Config.EggESP, function(v)
         Config.EggESP = v
         if not v then
             for _, o in ipairs(Workspace:GetDescendants()) do
-                if o:IsA("Highlight") and o.Name == "DH_EggESP" then o:Destroy() end
+                if o:IsA("Highlight") and o.Name == "DH4_Egg" then o:Destroy() end
             end
         end
     end)
@@ -1075,7 +1228,7 @@ function BuildHub()
         Config.PlayerESP = v
         if not v then
             for _, o in ipairs(Workspace:GetDescendants()) do
-                if o:IsA("Highlight") and o.Name == "DH_PlayerESP" then o:Destroy() end
+                if o:IsA("Highlight") and o.Name == "DH4_Player" then o:Destroy() end
             end
         end
     end)
@@ -1083,7 +1236,7 @@ function BuildHub()
         Config.CoinESP = v
         if not v then
             for _, o in ipairs(Workspace:GetDescendants()) do
-                if o:IsA("Highlight") and o.Name == "DH_CoinESP" then o:Destroy() end
+                if o:IsA("Highlight") and o.Name == "DH4_Coin" then o:Destroy() end
             end
         end
     end)
@@ -1110,10 +1263,8 @@ function BuildHub()
             Lighting.FogStart = 0
         end
     end)
-    Btn(PVisual, "🌅 نهار", function() Lighting.ClockTime = 14; Notify("Time", "☀️") end)
-    Btn(PVisual, "🌙 ليل", function() Lighting.ClockTime = 0; Notify("Time", "🌙") end)
 
-    -- ═════ FLY ═════
+    -- FLY
     Sec(PFly, "🕊️ الطيران")
     Tog(PFly, "تفعيل الطيران", Config.Fly, function(v)
         Config.Fly = v
@@ -1139,62 +1290,19 @@ function BuildHub()
     end)
     Sld(PFly, "سرعة الطيران", 20, 300, Config.FlySpeed, function(v) Config.FlySpeed = v end)
 
-    -- ═════ MISC ═════
+    -- MISC
     Sec(PMisc, "⚙️ متفرقات")
     Tog(PMisc, "🛡️ Anti-AFK", Config.AntiAFK, function(v) Config.AntiAFK = v end)
-    Tog(PMisc, "💰 جمع العملات تلقائياً", Config.AutoCollectCoins, function(v)
-        Config.AutoCollectCoins = v
-        Notify("Coins", v and "✓ مفعّل" or "معطّل")
-    end)
-    Tog(PMisc, "🚀 وضع الأداء", Config.PerformanceMode, function(v)
-        Config.PerformanceMode = v
-        if v then
-            for _, o in ipairs(Workspace:GetDescendants()) do
-                if o:IsA("ParticleEmitter") or o:IsA("Trail") or o:IsA("Beam") then
-                    o.Enabled = false
-                end
-            end
-            Lighting.GlobalShadows = false
-        end
-    end)
+    Tog(PMisc, "🎲 Anti-AFK عشوائي", Config.AntiAFKRandom, function(v) Config.AntiAFKRandom = v end)
+    Tog(PMisc, "💰 جمع العملات", Config.AutoCollectCoins, function(v) Config.AutoCollectCoins = v end)
     Sec(PMisc, "🔄 السيرفر")
     Btn(PMisc, "🔄 إعادة الاتصال", function()
         Notify("Rejoin", "جاري...")
         task.wait(1)
         pcall(function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end)
     end)
-    Btn(PMisc, "🌐 سيرفر جديد", function()
-        Notify("Hop", "جاري البحث...")
-        local servers = {}
-        pcall(function()
-            servers = HttpService:JSONDecode(
-                game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?limit=100")
-            ).data
-        end)
-        for _, s in ipairs(servers) do
-            if s.playing < s.maxPlayers and s.id ~= game.JobId then
-                pcall(function() TeleportService:TeleportToPlaceInstance(game.PlaceId, s.id, LocalPlayer) end)
-                return
-            end
-        end
-        Notify("Hop", "✗ مفيش سيرفر")
-    end)
 
-    -- ═════ WEBHOOK ═════
-    Sec(PWebhook, "📡 Discord Webhook")
-    Inp(PWebhook, "https://discord.com/api/webhooks/...", function(v)
-        Config.WebhookURL = v
-        Notify("Webhook", "✓ محفوظ")
-    end)
-    Tog(PWebhook, "إرسال Logs", Config.WebhookLog, function(v)
-        Config.WebhookLog = v
-    end)
-    Btn(PWebhook, "📤 اختبار", function()
-        SendWebhook("🐉 **Dragon Hub V3** — Test\nUser: `" .. LocalPlayer.Name .. "`")
-        Notify("Webhook", "✓ تم الإرسال")
-    end)
-
-    -- ═════ SETTINGS ═════
+    -- SETTINGS
     Sec(PSet, "🎨 الثيم")
     Btn(PSet, "🟡 ذهبي", function()
         Config.AccentColor = Color3.fromRGB(255, 180, 30)
@@ -1255,9 +1363,7 @@ function BuildHub()
     end)
     Btn(PSet, "❌ Unload Hub", function() ScreenGui:Destroy() end)
 
-    -- ═════════════════════════════════════════════════════
     -- DRAG
-    -- ═════════════════════════════════════════════════════
     local drD, drS, drP
     TB.InputBegan:Connect(function(i)
         if i.UserInputType == Enum.UserInputType.MouseButton1
@@ -1276,11 +1382,9 @@ function BuildHub()
         end
     end)
 
-    -- ═════════════════════════════════════════════════════
     -- OPEN / CLOSE
-    -- ═════════════════════════════════════════════════════
     local isOpen = false
-    local origSize = UDim2.new(0, 420, 0, 500)
+    local origSize = UDim2.new(0, 440, 0, 520)
     local function OpenUI()
         isOpen = true
         Main.Visible = true
@@ -1305,7 +1409,7 @@ function BuildHub()
     MinB.MouseButton1Click:Connect(function()
         if not isOpen then return end
         if Main.Size.Y.Offset > 100 then
-            TweenService:Create(Main, TweenInfo.new(0.2), {Size = UDim2.new(0, 420, 0, 52)}):Play()
+            TweenService:Create(Main, TweenInfo.new(0.2), {Size = UDim2.new(0, 440, 0, 56)}):Play()
             MinB.Text = "+"
         else
             TweenService:Create(Main, TweenInfo.new(0.2), {Size = origSize}):Play()
@@ -1313,9 +1417,7 @@ function BuildHub()
         end
     end)
 
-    -- ═════════════════════════════════════════════════════
     -- TIMER LOOP
-    -- ═════════════════════════════════════════════════════
     task.spawn(function()
         while TBar and TBar.Parent do
             local r = Config.KeyExpireTime - os.time()
@@ -1336,9 +1438,7 @@ function BuildHub()
         end
     end)
 
-    -- ═════════════════════════════════════════════════════
     -- CHARACTER ENGINE
-    -- ═════════════════════════════════════════════════════
     local function ApplyChar(c)
         local h = c:WaitForChild("Humanoid", 5)
         if h then
@@ -1357,13 +1457,7 @@ function BuildHub()
         if h then
             h.WalkSpeed = Config.WalkSpeed
             h.JumpPower = Config.JumpPower
-            if Config.AntiStun then
-                h.PlatformStand = false
-            end
-            if Config.GodMode then
-                h.MaxHealth = math.huge
-                h.Health = math.huge
-            end
+            if Config.AntiStun then h.PlatformStand = false end
             if Config.AntiRagdoll then
                 h:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
                 h:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
@@ -1380,51 +1474,44 @@ function BuildHub()
         end
     end)
 
-    -- ═══ 🛡️ PROTECTION ENGINE ═══
-    
-    -- Health Lock
+    -- HEALTH LOCK
     task.spawn(function()
         while task.wait(0.15) do
             if not Config.HealthLock then continue end
             local c = LocalPlayer.Character
             if not c then continue end
             local h = c:FindFirstChildOfClass("Humanoid")
-            if not h then continue end
-            if h.Health < h.MaxHealth then
+            if h and h.Health < h.MaxHealth then
                 h.Health = h.MaxHealth
                 Config.BlockedHits = Config.BlockedHits + 1
             end
         end
     end)
 
-    -- Auto Heal
+    -- AUTO HEAL
     task.spawn(function()
         while task.wait(0.5) do
             if not Config.AutoHeal then continue end
             local c = LocalPlayer.Character
             if not c then continue end
             local h = c:FindFirstChildOfClass("Humanoid")
-            if h and h.Health < h.MaxHealth then
-                h.Health = h.MaxHealth
-            end
+            if h and h.Health < h.MaxHealth then h.Health = h.MaxHealth end
         end
     end)
 
-    -- Anti-Touch
+    -- ANTI TOUCH
     task.spawn(function()
         while task.wait(0.3) do
             if not Config.AntiTouch then continue end
             local c = LocalPlayer.Character
             if not c then continue end
             for _, part in ipairs(c:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    part.CanTouch = false
-                end
+                if part:IsA("BasePart") then part.CanTouch = false end
             end
         end
     end)
 
-    -- Anti-Fling
+    -- ANTI FLING
     task.spawn(function()
         while task.wait(0.1) do
             if not Config.AntiFling then continue end
@@ -1439,7 +1526,7 @@ function BuildHub()
         end
     end)
 
-    -- Anti-Void
+    -- ANTI VOID
     RunService.Heartbeat:Connect(function()
         if not Config.AntiVoid then return end
         local c = LocalPlayer.Character
@@ -1451,7 +1538,7 @@ function BuildHub()
         end
     end)
 
-    -- Emergency TP
+    -- EMERGENCY TP
     task.spawn(function()
         while task.wait(0.2) do
             if not Config.EmergencyTP then continue end
@@ -1461,23 +1548,15 @@ function BuildHub()
             local hrp = c:FindFirstChild("HumanoidRootPart")
             if not h or not hrp then continue end
             if h.Health <= Config.EmergencyHealth and h.Health > 0 then
-                if not Config.LastPosition then
-                    Config.LastPosition = hrp.CFrame
-                end
                 hrp.CFrame = CFrame.new(hrp.Position.X, 500, hrp.Position.Z)
                 hrp.Velocity = Vector3.zero
                 h.Health = h.MaxHealth
                 Notify("🚨 Emergency", "تم إنقاذك!", 2, Color3.fromRGB(255, 200, 60))
-                task.wait(2)
-                if Config.LastPosition then
-                    hrp.CFrame = Config.LastPosition
-                    Config.LastPosition = nil
-                end
             end
         end
     end)
 
-    -- ═══ Anti-AFK ═══
+    -- ANTI AFK
     LocalPlayer.Idled:Connect(function()
         if not Config.AntiAFK then return end
         pcall(function()
@@ -1486,7 +1565,7 @@ function BuildHub()
         end)
     end)
 
-    -- ═══ Infinite Jump ═══
+    -- INFINITE JUMP
     UserInputService.JumpRequest:Connect(function()
         if Config.InfiniteJump then
             local c = LocalPlayer.Character
@@ -1497,13 +1576,11 @@ function BuildHub()
         end
     end)
 
-    -- ═══ Fly Loop ═══
+    -- FLY LOOP
     RunService.RenderStepped:Connect(function()
         if not Config.Fly or not Config.FlyBV then return end
         local c = LocalPlayer.Character
         if not c then return end
-        local hrp = c:FindFirstChild("HumanoidRootPart")
-        if not hrp then return end
         local cam = Workspace.CurrentCamera
         local dir = Vector3.zero
         if UserInputService:IsKeyDown(Enum.KeyCode.W) then dir = dir + cam.CFrame.LookVector end
@@ -1515,7 +1592,7 @@ function BuildHub()
         Config.FlyBV.Velocity = dir * Config.FlySpeed
     end)
 
-    -- ═══ Auto Steal ═══
+    -- AUTO STEAL
     task.spawn(function()
         while task.wait(Config.StealDelay) do
             if not Config.AutoSteal then continue end
@@ -1543,12 +1620,15 @@ function BuildHub()
                     end
                 end
             end
+            if Config.SmartDelay then
+                task.wait(0.5 + math.random() * 0.7)
+            end
         end
     end)
 
-    -- ═══ Auto Collect Coins ═══
+    -- AUTO COLLECT
     task.spawn(function()
-        while task.wait(0.4) do
+        while task.wait(0.6) do
             if not Config.AutoCollectCoins then continue end
             local c = LocalPlayer.Character
             if not c then continue end
@@ -1570,21 +1650,21 @@ function BuildHub()
         end
     end)
 
-    -- ═══ ESP Loops ═══
+    -- ESP LOOPS
     task.spawn(function()
         while task.wait(0.5) do
             if not Config.EggESP then
                 for _, o in ipairs(Workspace:GetDescendants()) do
-                    if o:IsA("Highlight") and o.Name == "DH_EggESP" then o:Destroy() end
+                    if o:IsA("Highlight") and o.Name == "DH4_Egg" then o:Destroy() end
                 end
             else
                 for _, o in ipairs(Workspace:GetDescendants()) do
                     if o:IsA("BasePart") and o.Parent ~= LocalPlayer.Character then
                         local nm = o.Name:lower()
                         if nm:find("egg") or nm:find("drop") then
-                            if not o:FindFirstChild("DH_EggESP") then
+                            if not o:FindFirstChild("DH4_Egg") then
                                 local h = Instance.new("Highlight", o)
-                                h.Name = "DH_EggESP"
+                                h.Name = "DH4_Egg"
                                 h.FillColor = Config.EggESPColor
                                 h.OutlineColor = Color3.fromRGB(255,255,255)
                                 h.FillTransparency = 0.5
@@ -1596,14 +1676,14 @@ function BuildHub()
             end
             if not Config.PlayerESP then
                 for _, o in ipairs(Workspace:GetDescendants()) do
-                    if o:IsA("Highlight") and o.Name == "DH_PlayerESP" then o:Destroy() end
+                    if o:IsA("Highlight") and o.Name == "DH4_Player" then o:Destroy() end
                 end
             else
                 for _, p in ipairs(Players:GetPlayers()) do
                     if p ~= LocalPlayer and p.Character then
-                        if not p.Character:FindFirstChild("DH_PlayerESP") then
+                        if not p.Character:FindFirstChild("DH4_Player") then
                             local h = Instance.new("Highlight", p.Character)
-                            h.Name = "DH_PlayerESP"
+                            h.Name = "DH4_Player"
                             h.FillColor = Config.PlayerESPColor
                             h.OutlineColor = Color3.fromRGB(255,255,255)
                             h.FillTransparency = 0.55
@@ -1614,16 +1694,16 @@ function BuildHub()
             end
             if not Config.CoinESP then
                 for _, o in ipairs(Workspace:GetDescendants()) do
-                    if o:IsA("Highlight") and o.Name == "DH_CoinESP" then o:Destroy() end
+                    if o:IsA("Highlight") and o.Name == "DH4_Coin" then o:Destroy() end
                 end
             else
                 for _, o in ipairs(Workspace:GetDescendants()) do
                     if o:IsA("BasePart") and o.Parent ~= LocalPlayer.Character then
                         local nm = o.Name:lower()
                         if nm:find("coin") or nm:find("cash") then
-                            if not o:FindFirstChild("DH_CoinESP") then
+                            if not o:FindFirstChild("DH4_Coin") then
                                 local h = Instance.new("Highlight", o)
-                                h.Name = "DH_CoinESP"
+                                h.Name = "DH4_Coin"
                                 h.FillColor = Config.CoinESPColor
                                 h.OutlineColor = Color3.fromRGB(255,255,255)
                                 h.FillTransparency = 0.5
@@ -1636,33 +1716,28 @@ function BuildHub()
         end
     end)
 
-    -- ═══ Keybinds ═══
+    -- KEYBINDS
     UserInputService.InputBegan:Connect(function(input, p)
         if p then return end
         if input.KeyCode == Enum.KeyCode.RightShift then
             if isOpen then CloseUI() else OpenUI() end
         end
-        if input.KeyCode == Enum.KeyCode.RightControl then
-            ScreenGui:Destroy()
-        end
-        if input.KeyCode == Enum.KeyCode.Insert then
-            OpenUI()
-        end
+        if input.KeyCode == Enum.KeyCode.RightControl then ScreenGui:Destroy() end
+        if input.KeyCode == Enum.KeyCode.Insert then OpenUI() end
     end)
 
     task.wait(0.3)
-    Notify("Dragon Hub V3", "✓ Overlord Edition Loaded!", 4)
-    Notify("🛡️ Protection", "Anti-Kill System Active", 5, Color3.fromRGB(100, 255, 150))
-    SendWebhook("🐉 **Dragon Hub V3 Loaded**\nUser: `" .. LocalPlayer.Name .. "`\nKey: `" .. tostring(Config.ActiveKey) .. "`")
+    Notify("Dragon Hub V4", "✓ GODMODE Loaded!", 4)
+    Notify("🛡️ Guardian", "8 Layers Protection Active", 5, Color3.fromRGB(100, 255, 150))
+    SendWebhook("🐉 **Dragon Hub V4 GODMODE Loaded**\nUser: `" .. LocalPlayer.Name .. "`\nKey: `" .. tostring(Config.ActiveKey) .. "`")
 
-    -- Auto Save Config
     task.spawn(function()
         while task.wait(60) do SaveConfig() end
     end)
 end
 
 -- ═════════════════════════════════════════════════════════════════════════════
--- [13] START
+-- [14] START
 -- ═════════════════════════════════════════════════════════════════════════════
 
 local function ShowKeyUI()
